@@ -2,7 +2,7 @@
 jQuery(document).ready(function() {
 
     //wrap frm_submit
-    jQuery(".frm_forms form fieldset").append("<div class='sticky-wrapper'></div>");
+    /*jQuery(".frm_forms form fieldset").append("<div class='sticky-wrapper'></div>");
     jQuery(".frm_forms form .frm_submit").appendTo(".sticky-wrapper");
     jQuery(".frm_forms form .frm_submit").addClass("stuck");
 
@@ -14,7 +14,7 @@ jQuery(document).ready(function() {
         }
     }, {
         offset: 'bottom-in-view'
-    })
+    })*/
 
     //added by cloudred on May 1,2015
     //modifyng formidable form to show append the "other field" with the html char "&#8627;" arrow for better visual recognition

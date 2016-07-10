@@ -35,8 +35,8 @@ input[type="submit"] {
   margin-top:25px;
   border-top:1px solid #ccc;
   padding:25px 0;
-  width:960px;
-  background-color: rgba(255, 255, 255, 0.8);
+  /*width:960px;
+  background-color: rgba(255, 255, 255, 0.8);*/
 }
 .other-arrow { display:none; }
 		.word_count.limit_reached { color:#D2090C !important; }
