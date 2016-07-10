@@ -1,0 +1,54 @@
+@charset "UTF-8";
+/* CSS Document */
+
+.application-section-header h4 {
+  font-size:48px !important;
+  padding-bottom:20px;
+}
+input, label, select, option, textarea {
+  font-family:inherit !important;
+}
+.with_frm_style .frm_message p {
+  font-size:1em !important;
+  line-height:normal !important;
+  margin:0 !important;
+}
+input[type="submit"] {
+  letter-spacing:normal !important;
+  text-transform:none !important;
+}
+.frm_form_field select option {
+  padding:2px 10px !important;
+}
+.frm_style_formidable-style.with_frm_style input.frm_other_input:not(.frm_other_full) {
+  margin-top:10px;
+}
+.other-arrow {
+  padding:5px 0 0 18px;
+  display:inline-block;
+}
+.frm_form_field h5 {
+  font-size:24px;
+  line-height:normal;
+}
+.frm_submit {
+  margin-top:25px;
+  border-top:1px solid #ccc;
+  padding:25px 0;
+  width:960px;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+.other-arrow { display:none; }
+		.word_count.limit_reached { color:#D2090C !important; }
+		.word_count.limit_ok { color:#54BE01 !important; }
+		.stuck {
+		  position:fixed;
+		  bottom:0;
+		}
+
+.frm_uploaded_files {
+}
+input[type="file"] {
+	margin:25px 0;
+}
+	

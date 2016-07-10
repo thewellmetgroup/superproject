@@ -1,8 +1,11 @@
+.htaccess
 wp-config.php
 wp-admin/
 wp-content/mu-plugins/
 wp-includes/
 wp-content/uploads/
+wp-content/themes/wellmet/bower_components/
+wp-content/themes/wellmet/node_modules/
 wp-*.php
 !wp-config.php
 index.php

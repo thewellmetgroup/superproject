@@ -1,0 +1,209 @@
+header {
+	background-color:$header-bg;
+	position:relative;
+	/*z-index:99;*/
+	
+	.container {
+		position:relative;
+	}
+	
+	.logo {
+		margin:-20px 0 -30px 0;
+		@include breakpoint(medium) {
+			margin:-25px 0 -35px 0;
+		}
+		@include breakpoint(large) {
+			margin:-35px 0 -50px 0;
+		}
+  		width: 31.91489%;
+  		float: left;
+  		padding-left:15px;
+  		img {
+  			width: 83.33333%;
+  			max-width: 250px;
+ 			min-width: 150px;
+  			height: auto;
+  		}
+  	}
+  	&.home {
+  		.logo {
+  			margin:0;
+  			padding:15px 0;
+			@include breakpoint(medium) {
+				padding:3.6em 0;
+			}
+		}
+	}
+  		
+ 
+	.nav .open > a,
+	.nav .open > a:focus,
+	.nav .open > a:hover,
+	.nav > a,
+	.nav > a:focus,
+	.nav > a:hover {
+		background-color:#FFF;
+		border-color: #FFF;
+    	@include breakpoint(medium) {
+    		border-right: 1px solid $grey;
+    		border-top: 1px solid $grey;
+    		border-left: 1px solid $grey;
+    		border-bottom:none;
+    	}
+    	color:$text-color;
+    	border-top-left-radius: 4px;
+    	border-top-right-radius: 4px;
+    	
+	}
+	
+	.navbar-nav > li > a {
+		padding:10px 15px;
+		@include breakpoint(medium) {
+			padding:10px 5px;
+			font-size:13px;
+		}
+		@include breakpoint(large) {
+			padding:10px;
+			font-size:16px;
+		}
+		/*margin-left:-20px;*/
+	}
+	nav {
+		@include breakpoint(medium) {
+			padding-top:2em;
+		}
+		@include breakpoint(large) {
+			padding-top:3.6em;
+		}
+		&.navbar {
+			position:absolute !important;
+			top:0;
+			right:0;
+			margin:0;
+		}
+		
+		.container-fluid,
+		.navbar-collapse {
+			padding-left:0;
+			padding-right:0;
+			background-color:transparent;
+		}
+		.navbar-collapse.in {
+			background-color:#FFF;
+			position:relative;
+			z-index:10000;
+		}
+		
+		
+		ul {
+  			list-style-type: none;
+			background-color: none;
+			margin:0 !important;
+			
+			/* Float the list items side by side */
+			li {
+				/* Style the links inside the list items */
+				a {
+					display: inline-block;
+					line-height:normal;
+					text-decoration: none;
+					font-weight: 700;
+					
+					background-color:#fff;
+					margin-right: 1em;
+					text-transform:uppercase;
+					border:1px solid #fff;
+					
+					font-size:2em;
+					line-height:normal !important;
+					
+					&:hover, &:focus, &:active {
+						background-color:#FFF !important;
+						color:$text-color !important;
+					}
+					
+					@include breakpoint(medium) {
+						font-size: 16px;
+						line-height:20px;
+						&:hover, &:focus, &:active {
+							background-color:#FFF !important;
+							color:$text-color !important;
+						}
+					}
+					
+					
+				}
+			}
+			
+				
+			//assuming the only custom link in menu will be the donate link
+			li.menu-item-type-custom a {
+				margin-right: 0;
+				background:$brand-secondary;
+  				color:white;
+				border-radius:4px;
+				&:hover {
+					background:$brand-secondary !important;
+  					color:white !important;
+  				}
+			}
+		}
+		
+		.dropdown-menu {
+			font-size:50%;
+			@include breakpoint(medium) {
+				font-size: 100%;
+			}
+			li > a {
+				line-height:inherit;
+				margin-right:0;
+				padding:3px 20px !important;
+				text-transform:none;
+			}
+			
+		}
+		.dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover {
+			background-color:#FFF;
+			color:$text-color;
+		}
+		button.navbar-toggle {
+			span.icon-bar {
+				background:$brand-primary;
+			}
+		}
+		
+		
+	}
+	
+	nav, .mission {
+		width: 100%;
+  		float: none;
+  		clear: both;
+		@include breakpoint(medium) {
+			width: 64%;
+  			float: left;
+  			clear: none;
+  		}
+	}
+
+	.mission {
+		font-weight: 300;
+		font-size: 1.875rem;
+		line-height: 1.2;
+		margin-top: 130px;
+		margin-left:20px;
+		padding:0;
+  		@include breakpoint(medium) {
+  			font-size:2.6rem;
+			padding-left: 20px;
+			margin-left: 34px;
+			width:63%;
+
+		}
+		@include breakpoint(xlarge) {	
+    		padding-top: 40px;
+    		margin-left: 42px;
+		}
+		
+	}
+}

@@ -1,0 +1,58 @@
+footer {
+	background:url('../images/stripe_87313270bf6c4aabc72769cd68dd7822.png');
+	margin-top:50px;
+	
+	section h3 {
+		display:none;
+	}
+	ul {
+		list-style-type: none;
+    	margin: 0;
+    	padding: 0;
+    	li {
+    		display: inline-block;
+    		padding:0;
+    		margin:0;
+    		vertical-align:top;
+    		margin:15px 0;
+    		width:100%;
+    		
+    		a {
+    			width:80%;
+    			display:block;
+    			font-weight:700;
+    			text-decoration:none;
+    			&:link, &:visited {
+    				color:$footer-text;
+    			}
+    			&:hover, &:active {
+    				color:$brand-primary;
+    			}
+    		}
+    		
+    		
+    		ul.sub-menu {
+    			li {
+    				margin:0;
+    				width:100%;
+    				a {
+    					font-weight:300;
+    					line-height: 1;
+    					display: block;
+    					margin: 5px 0;
+    				}
+    			}
+    		}	
+    		@include breakpoint(medium) {
+				width:19%;
+				margin:50px 0;
+			}
+    	}
+	}
+	.legal {
+		padding:20px 0;
+		font-size:12px;
+		color:#FFF;
+		background-color:$dark-grey;
+	}
+}
