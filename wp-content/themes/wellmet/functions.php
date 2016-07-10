@@ -207,11 +207,11 @@ function wellmet_login_logo() { ?>
         	max-width:500px;
         }
         #login h1 a, .login h1 a {
-            background-image: url(<?php echo get_stylesheet_directory_uri(); ?>/dist/images/wellmet-logo.png);
-            padding-bottom: 30px;
-            background-size:150px;
-            height:150px;
-            width:150px;
+            background-image: url(<?php echo get_stylesheet_directory_uri(); ?>/dist/images/wellmet-logo.png) !important;
+            padding-bottom: 30px !important;
+            background-size:150px !important;
+            height:150px !important;
+            width:150px !important;
         }
     </style>
 <?php }
