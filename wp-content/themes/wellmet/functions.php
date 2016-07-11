@@ -216,12 +216,13 @@ function show_login( $atts ){
 		$html .= '<p><a href="'.wp_lostpassword_url().'">'. __('Lost your password?','sage'). '</a><br>';
 	} else { 
 		$html = '<h3>'.__('What would you like to do?','sage').'</h3>';
-		if ( is_admin() ) {
-			$html .= '<a href="'.admin_url().'">'.__('Go to admin dashboard','sage').'</a><br>';
-		}
+		//if ( is_admin() ) {
+			//$html .= '<a href="'.admin_url().'">'.__('Go to admin dashboard','sage').'</a><br>';
+		//}
 		$html .= '<a href="'.admin_url('profile.php').'">'.__('Update my profile','sage').' &#8594;</a><br>';
 		$html .= '<a href="/nominations/">'.__('Submit a nomination form','sage').' &#8594;</a><br>';
-		$html .= '<a href="'.admin_url('admin.php?page=formidable-entries').'">'.__('Review nominations','sage').' &#8594;</a><br>';
+		$html .= '<a href="'.admin_url('admin.php?page=formidable-entries').'">'.__('Review nominations','sage').' &#8594;</a><br><br>';
+		$html .= '<a href="'.wp_logout_url().'">'.__('Log out','sage').' &#8594;</a><br>';
 	}
 	
 	return $html;
