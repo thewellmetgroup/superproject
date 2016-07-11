@@ -6,9 +6,9 @@
 <?php 
 //select featured grantees
 $posts = get_posts(array(
-	'posts_per_page'	=> -1,
 	'post_type'			=> 'post',
-	'meta_key'			=> '_featured',
+	'meta_key'			=> 'featured',
+	'meta_value'		=> 'a:1:{i:0;s:8:"Featured";}'
 ));
 //randomize the array
 shuffle( $posts );

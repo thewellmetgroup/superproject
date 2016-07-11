@@ -202,6 +202,7 @@ if (!empty($myposts)) :
 	foreach ( $myposts as $post ) : setup_postdata( $post );
 		//print the year divider
 		//only if meta array isn't empty and the form has not yet been submitted
+		//print_r($meta_array);
 		if ($curr_year!=get_field('year') && (!empty($meta_array) || empty($_POST))) {
 			//close the item row only if it hasn't been already
 			if ($counter>0) {

@@ -161,7 +161,7 @@ class Random_color {
 				//if the grantee mission if empty
 				if (empty($grantee_mission)) {
 					//set description excerpt as mission
-					$grantee_mission = trunc($grantee_description,20);
+					$grantee_mission = trunc($grantee_description,10);
 				}
         		return $grantee_mission;
     		}

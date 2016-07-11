@@ -5,6 +5,7 @@
 		$grantee_mission=get_field('featured_mission');
 		$grantee_description=get_field('description');
 		$quote=get_field('quote');
+		$empowering_quote=get_field('empowering_quote');
 		$website_url=get_field('website_url');
 		$grant_amount=get_field('grant_amount');
 		$borough=get_field('borough');
@@ -112,8 +113,8 @@
 </div>
 
 <?php 
-//only details if not homepage
-if ( !is_front_page() ) { ?>
+//only details if not homepage AND not empowering communities page
+if ( !is_front_page() && !is_page_template( 'page-empowering-communities.php' ) ) { ?>
 <div class="grantee-detail">
     <div class="row">
     	<div class="col-md-2">
@@ -145,7 +146,12 @@ if ( !is_front_page() ) { ?>
     						<?php echo $borough; ?>
     					</div>
     				</div>
-    				<?php echo $grantee_description; ?>
+    				<div class="empowering_quote">
+    					<?php echo $empowering_quote; ?>
+    				</div>
+    				<div>
+    					<?php echo $grantee_description; ?>
+    				</div>
     			</div>
     			
     			<?php if (!empty($website_url)) { ?>
@@ -163,4 +169,19 @@ if ( !is_front_page() ) { ?>
 		</div>
 	</div>
 </div>
+<?php } ?>
+
+<?php if (is_page_template('page-empowering-communities.php')) { ?>
+<div class="grantee-detail">
+    <div class="row">
+    	<div class="col-md-2">
+		</div>
+		<div class="col-md-8 empowering_quote big">
+			<?php echo $empowering_quote; ?>
+		</div>
+		<div class="col-md-2">
+		</div>
+	</div>
+</div>
+
 <?php } ?>
