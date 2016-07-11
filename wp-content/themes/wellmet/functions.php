@@ -198,6 +198,32 @@ function show_gallery( $atts ){
 }
 add_shortcode( 'wellmet_gallery', 'show_gallery' );
 
+
+//add Login shortcode
+function show_login( $atts ){
+	if (!is_user_logged_in()) {
+		if (isset($_GET['redirect'])) {
+			$whereto = $_GET['redirect'];
+		} else {
+			$whereto = home_url();
+		}
+		$args = array(
+			'redirect'       => $whereto,
+			'form_id'        => 'wellmet-loginform',
+			'echo'           => true
+		);
+		$html = wp_login_form($args);
+		$html .= '<p><a href="'.wp_lostpassword_url().'">Lost your password?</a><br>';
+	} else { 
+		$html = '<div class="login-status">You are already logged in!</div>';
+	}
+	
+	return $html;
+}
+add_shortcode( 'login', 'show_login' );
+
+
+
 //customize login page
 function wellmet_login_logo() { ?>
     <style type="text/css">
