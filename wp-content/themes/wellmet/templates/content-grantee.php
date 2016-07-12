@@ -114,7 +114,7 @@
 
 <?php 
 //only details if not homepage AND not empowering communities page
-$pageTemplate = get_template();
+$pageTemplate = what_template();
 if ( !is_front_page() && $pageTemplate != 'page-empowering-communities.php' ) { ?>
 <div class="grantee-detail">
     <div class="row">
