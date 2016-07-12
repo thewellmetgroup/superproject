@@ -105,6 +105,12 @@ function my_show_columns($name) {
    
 }
 
+function get_template() {
+	$pageTemplate = get_page_template();
+	$pageArray = explode("/", $pageTemplate);
+	return $pageTemplate;	
+}
+
 function trunc($phrase, $max_words) {
    	$phrase_array = explode(' ',$phrase);
 	if(count($phrase_array) > $max_words && $max_words > 0)
@@ -133,7 +139,8 @@ function halfy($pos,$bg_type,$picked_color,$halfy_img_url) {
     } else {
     	$css_value = 'background-color:'.$picked_color.''; //must be the color
 		$halfy_content=$grantee_mission;
-		if ( is_front_page() || is_page_template( 'page-empowering-communities.php' ) ) {
+		$pageTemplate = get_template();
+		if ( is_front_page() || $pageTemplate == 'page-empowering-communities.php' ) {
 			$halfy_content.='<p><a href="'.get_the_permalink().'" class="cr_btn">'.__('See more','sage').'</a></p>';
 		}
 	}

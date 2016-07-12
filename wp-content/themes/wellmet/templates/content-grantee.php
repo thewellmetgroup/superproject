@@ -114,7 +114,8 @@
 
 <?php 
 //only details if not homepage AND not empowering communities page
-if ( !is_front_page() && !is_page_template( 'page-empowering-communities.php' ) ) { ?>
+$pageTemplate = get_template();
+if ( !is_front_page() && $pageTemplate != 'page-empowering-communities.php' ) { ?>
 <div class="grantee-detail">
     <div class="row">
     	<div class="col-md-2">
@@ -171,7 +172,7 @@ if ( !is_front_page() && !is_page_template( 'page-empowering-communities.php' ) 
 </div>
 <?php } ?>
 
-<?php if (is_page_template('page-empowering-communities.php')) { ?>
+<?php if ($pageTemplate == 'page-empowering-communities.php') { ?>
 <div class="grantee-detail">
     <div class="row">
     	<div class="col-md-2">
