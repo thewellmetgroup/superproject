@@ -105,9 +105,10 @@ function my_show_columns($name) {
    
 }
 
-function what_template() {
+function current_template() {
 	$pageTemplate = get_page_template();
 	$pageArray = explode("/", $pageTemplate);
+	$pageTemplate = end($pageArray);
 	return $pageTemplate;	
 }
 
@@ -139,7 +140,7 @@ function halfy($pos,$bg_type,$picked_color,$halfy_img_url) {
     } else {
     	$css_value = 'background-color:'.$picked_color.''; //must be the color
 		$halfy_content=$grantee_mission;
-		$pageTemplate = what_template();
+		$pageTemplate = current_template();
 		if ( is_front_page() || $pageTemplate == 'page-empowering-communities.php' ) {
 			$halfy_content.='<p><a href="'.get_the_permalink().'" class="cr_btn">'.__('See more','sage').'</a></p>';
 		}
