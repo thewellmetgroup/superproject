@@ -41,10 +41,11 @@ endif;
 <div class="row page-leader">
 	<div class="col-sm-4">
 		<h1><?php echo get_the_title(); ?></h1>
+		<p><strong><?php _e('View:','sage'); ?></strong> <a href="<?php echo get_page_link(); ?>?view=list"><?php _e('alphabetically','sage'); ?></a></p>
 	</div>
 	<div class="col-sm-8 grantee-filters">
 		<form id="grantee-search" name="grantee-search" class="grantee-search" method="post" action="<?php echo get_page_link(); ?>">
-			<labeL>Filter by:</labeL> &nbsp;
+			<labeL><?php _e('Filter by:','sage'); ?></labeL> &nbsp;
        				<select name="grantee-year">
                     	<?php
                     		// must add field key of the field you want
@@ -139,7 +140,7 @@ endif;
                     </select> 
                     &nbsp;
                     <select name="borough">
-                    	<option value="Borough">Borough</option>
+                    	<option value="Borough"><?php _e('Borough','sage'); ?></option>
                     	<?php
                     	$boro_array = array('Brooklyn','Manhattan','Queens','Staten Island','The Bronx');
                     	foreach ($boro_array as &$value) {
@@ -168,12 +169,13 @@ endif;
 								'value_field'	     => 'term_id',
     							) ); ?>
     				&nbsp;
-    				<a href="javascript:void(0);" onclick="document.getElementById('grantee-search').submit(); return false;">Go!</a>
+    				<a href="javascript:void(0);" onclick="document.getElementById('grantee-search').submit(); return false;"><?php _e('Go!','sage'); ?></a>
 
 		</form>
 	</div>
 </div>
 
+<?php if (!isset($_GET["view"])): ?>
 <?php
 $args = array(
 	'posts_per_page'   => -1,
@@ -264,4 +266,48 @@ else:
 endif;
 
 ?>
+<?php endif; ?>
+<?php if (isset($_GET["view"]) && $_GET["view"] == "list"): ?>
+<div class="page" style="clear:both">
+	<div class="row">
+		<div class="col-md-2">
+		</div>
+		<div class="col-md-8">
+			<h3>Alphabetical Summary of Grantees</h3>
+			
+			<ul>
+				<?php $args = array(
+				'posts_per_page'   => -1,
+				'offset'           => 0,
+				'category'         => '',
+				'category_name'    => '',
+				'orderby'          => 'title',
+				'order'            => 'ASC',
+				'include'          => '',
+				'exclude'          => '',
+				'meta_key'         => '',
+				'meta_value'       => '',
+				'post_type'        => 'post',
+				'post_mime_type'   => '',
+				'post_parent'      => '',
+				'author'	   => '',
+				'author_name'	   => '',
+				'post_status'      => 'publish',
+				'suppress_filters' => true 
+				);
+				$posts_array = get_posts( $args );
+				foreach ( $posts_array as $post ) : setup_postdata( $post ); ?>
+					<li>
+						<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+						<span style="color:#ccc"><?php echo get_metadata('post', $post->ID, 'year',true); ?></span>
+					</li>
+				<?php endforeach; 
+				wp_reset_postdata();?>
+			</ul>
+		</div>
+		<div class="col-md-2">
+		</div>
+	</div>
+</div>
+<?php endif; ?>
 
