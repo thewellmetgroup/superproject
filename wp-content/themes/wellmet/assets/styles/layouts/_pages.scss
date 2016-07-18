@@ -76,16 +76,19 @@ h3.fancy:before {
 	margin:0 auto;
 }
 
-//GRANTEE LISTING PAGE
+/*****************************************/
+//*****  GRANTEE LISTING PAGE  ***********/
 
 .grantee-search {
 	input, select {
 		width:20%;
 	}
 	
+}
+.grantee-listview-action {
 	@include breakpoint(medium) {
 		text-align: right;
-    	padding-top: 45px;
+    	padding-top: 95px;
     }
 }
 .grantee-filters {

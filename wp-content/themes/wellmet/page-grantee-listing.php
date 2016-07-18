@@ -170,7 +170,7 @@ endif;
 
 		</form>
 	</div>
-	<div class="col-sm-4">
+	<div class="col-sm-4 grantee-listview-action">
 		<p><strong><?php _e('View:','sage'); ?></strong> <a href="<?php echo get_page_link(); ?>?view=list"><?php _e('alphabetically','sage'); ?></a></p>
 	</div>
 </div>

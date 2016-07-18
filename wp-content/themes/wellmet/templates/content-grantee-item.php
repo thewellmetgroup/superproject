@@ -20,7 +20,7 @@
 	<div class="excerpt content-padding">
 		<?php 	if (has_excerpt()): the_excerpt();
 				else:
-				echo trunc(get_field('description'), '25');
+				echo trunc(get_field('description'), '10');
 				endif;
 		 ?>
 	</div>
