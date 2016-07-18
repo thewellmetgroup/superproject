@@ -39,11 +39,8 @@ endif;
 ?>
 
 <div class="row page-leader">
-	<div class="col-sm-4">
-		<h1><?php echo get_the_title(); ?></h1>
-		<p><strong><?php _e('View:','sage'); ?></strong> <a href="<?php echo get_page_link(); ?>?view=list"><?php _e('alphabetically','sage'); ?></a></p>
-	</div>
 	<div class="col-sm-8 grantee-filters">
+		<h1><?php echo get_the_title(); ?></h1>
 		<form id="grantee-search" name="grantee-search" class="grantee-search" method="post" action="<?php echo get_page_link(); ?>">
 			<labeL><?php _e('Filter by:','sage'); ?></labeL> &nbsp;
        				<select name="grantee-year">
@@ -172,6 +169,9 @@ endif;
     				<a href="javascript:void(0);" onclick="document.getElementById('grantee-search').submit(); return false;"><?php _e('Go!','sage'); ?></a>
 
 		</form>
+	</div>
+	<div class="col-sm-4">
+		<p><strong><?php _e('View:','sage'); ?></strong> <a href="<?php echo get_page_link(); ?>?view=list"><?php _e('alphabetically','sage'); ?></a></p>
 	</div>
 </div>
 

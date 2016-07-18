@@ -147,9 +147,10 @@ if ( !is_front_page() && $pageTemplate != 'page-empowering-communities.php' ) { 
     						<?php echo $borough; ?>
     					</div>
     				</div>
-    				<div class="empowering_quote">
-    					<?php echo $empowering_quote; ?>
-    				</div>
+    				<!--
+                    <div class="empowering_quote">
+    					<?php //echo $empowering_quote; ?>
+    				</div>-->
     				<div>
     					<?php echo $grantee_description; ?>
     				</div>
