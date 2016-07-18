@@ -42,8 +42,12 @@
     // Grantees page
     'grantees': {
       init: function() {
-        // JavaScript to be fired on the home page
-        //alert('hello!');
+        $('.grantee-row').masonry({
+  			itemSelector: '.grantee-item',
+  			columnWidth: '.grantee-item',
+  			percentPosition: true,
+  			originLeft: true
+		});
       },
       finalize: function() {
         // JavaScript to be fired on the home page, after the init JS

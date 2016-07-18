@@ -37,7 +37,6 @@ if (!empty($_POST)):
 	}
 endif;
 ?>
-
 <div class="row page-leader">
 	<div class="col-sm-8 grantee-filters">
 		<h1><?php echo get_the_title(); ?></h1>
@@ -204,8 +203,8 @@ if (!empty($myposts)) :
 	foreach ( $myposts as $post ) : setup_postdata( $post );
 		//print the year divider
 		//only if meta array isn't empty and the form has not yet been submitted
-		//print_r($meta_array);
-		if ($curr_year!=get_field('year') && (!empty($meta_array) || empty($_POST))) {
+		
+		if ($curr_year!=get_field('year')) {
 			//close the item row only if it hasn't been already
 			if ($counter>0) {
 				echo '</div>';
@@ -223,16 +222,16 @@ if (!empty($myposts)) :
         			break;
     			}
 			}
-			/*print_r($borough_data);
-			if (count($borough_data)==0 && empty($cat)) {
+			/*print_r($borough_data);*/
+			if (count($borough_data)==0 && $cat=="") {
 				$rowheader = $curr_year.' / '.$total_grants;
 			} else {
 				$rowheader = $curr_year;
-			}*/
-			
+			}
+
 			echo '<div class="row divider">
 					<div class="col-xs-12">
-						<h3 class="fancy"><span>'.$curr_year.' / '.$total_grants.'</span></h3>
+						<h3 class="fancy"><span>'.$rowheader.'</span></h3>
 					</div>
 				</div>';	
 		}
@@ -245,16 +244,16 @@ if (!empty($myposts)) :
 					//load the grantee template
 					include( locate_template( 'templates/content-grantee-item.php' ) );				
 				echo '</div>';
-		if ($counter<4) :
+		//if ($counter<4) :
 			$counter++;
 			//do math on the total grants for this year
 			$total_grants = $total_grants + get_field('grant_amount');
-		endif;
-		if ($counter==4) :
-			$counter=0;
-			$reset_row=false;
-			echo '</div>';		
-		endif;
+		//endif;
+		//if ($counter==4) :
+			//$counter=0;
+			//$reset_row=false;
+			//echo '</div>';		
+		//endif;
 	endforeach; 
 	wp_reset_postdata();
 else:
