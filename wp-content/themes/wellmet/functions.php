@@ -269,3 +269,40 @@ function wellmet_login_logo_url_title() {
 }
 add_filter( 'login_headertitle', 'wellmet_login_logo_url_title' );
 
+
+
+/********************************************
+/* Adding open graph sharing meta tags *****/
+add_action('wp_head','hook_meta');
+function hook_meta() {
+	global $post;
+	$featured_img_url = get_stylesheet_directory_uri().'/dist/images/facebook.png';
+	$output='<meta property="og:type" content="website">';
+	$output.='<meta property="og:site_name" content="'.get_bloginfo("name").'">';
+	//if single grantee, use the content of the grantee
+	if (is_single()) {
+		//check if featured image is set
+		$featured = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), "full" );
+		if( $featured ) {
+			$featured_img_url = $featured[0];
+		} 
+		$output.='<meta property="og:title" content="'.get_the_title($post->ID).'">';
+		$output.='<meta property="og:url" content="'.get_post_permalink($post->ID).'">';
+		$output.='<meta property="og:image" content="'.$featured_img_url.'">';
+		$output.='<meta property="og:description" content="'.substr(strip_tags(get_post($post->ID)->post_content),0,157).'...">';
+	} else {
+	//otherwise show general blog description and image
+		$output.='<meta property="og:title" content="'.get_bloginfo("name").'">';
+		$output.='<meta property="og:url" content="'.get_bloginfo("url").'">';
+		$output.='<meta property="og:image" content="'.$featured_img_url.'">';
+		$output.='<meta property="og:description" content="'.get_bloginfo("description").'">';
+	}
+	
+	echo $output;
+}
+
+/* END meta tags ****************************/
+
+/*hide generator for security */
+remove_action('wp_head', 'wp_generator'); 
+
