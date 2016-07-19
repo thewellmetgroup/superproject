@@ -103,7 +103,7 @@
         			if (count($grantee_images)==1) {
         				echo fuller($picked_color,$full_img_url,$full_img_alt);
         			}
-        			echo halfy('bottom','color',$picked_color,''); 
+        			echo halfy('bottom','color',$picked_color,'',$halfy_img_alt); 
         		?>
         		
         	</div>

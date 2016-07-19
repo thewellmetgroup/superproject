@@ -289,7 +289,7 @@ function hook_meta() {
 		$output.='<meta property="og:title" content="'.get_the_title($post->ID).'">';
 		$output.='<meta property="og:url" content="'.get_post_permalink($post->ID).'">';
 		$output.='<meta property="og:image" content="'.$featured_img_url.'">';
-		$output.='<meta property="og:description" content="'.substr(strip_tags(get_post($post->ID)->post_content),0,157).'...">';
+		$output.='<meta property="og:description" content="'.substr(strip_tags(get_field('description')),0,157).'...">';
 	} else {
 	//otherwise show general blog description and image
 		$output.='<meta property="og:title" content="'.get_bloginfo("name").'">';
