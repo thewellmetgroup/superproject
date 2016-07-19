@@ -42,11 +42,15 @@
     // Grantees page
     'grantees': {
       init: function() {
-        $('.grantee-row').masonry({
+        var $grid = $('.grantee-row').masonry({
   			itemSelector: '.grantee-item',
   			columnWidth: '.grantee-item',
   			percentPosition: true,
   			originLeft: true
+		});
+		// layout Masonry after each image loads
+		$grid.imagesLoaded().progress( function() {
+			$grid.masonry('layout');
 		});
       },
       finalize: function() {
