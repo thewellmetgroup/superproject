@@ -63,18 +63,18 @@
         	<?php 
         	switch ($rand) {
     			case "1":
-        			echo fuller($picked_color,$full_img_url);
+        			echo fuller($picked_color,$full_img_url,$full_img_alt);
         			break;
     			case "2":
-        			echo halfy('top','image',$picked_color,$halfy_img_url);
-        			echo halfy('bottom','color',$picked_color,$halfy_img_url);
+        			echo halfy('top','image',$picked_color,$halfy_img_url,$halfy_img_alt);
+        			echo halfy('bottom','color',$picked_color,$halfy_img_url,$halfy_img_alt);
         			break;
     			case "3":
-        			echo halfy('top','color',$picked_color,$halfy_img_url);
-        			echo halfy('bottom','image',$picked_color,$halfy_img_url);
+        			echo halfy('top','color',$picked_color,$halfy_img_url,$halfy_img_alt);
+        			echo halfy('bottom','image',$picked_color,$halfy_img_url,$halfy_img_alt);
         			break;
         		case "4":
-        			echo fuller($picked_color,$full_img_url);
+        			echo fuller($picked_color,$full_img_url,$full_img_alt);
         			break;
 			} ?> 	
         </div>
@@ -82,18 +82,18 @@
 			<?php 
         	switch ($rand) {
     			case "1":
-        			echo halfy('top','image',$picked_color,$halfy_img_url);
-        			echo halfy('bottom','color',$picked_color,$halfy_img_url);
+        			echo halfy('top','image',$picked_color,$halfy_img_url,$halfy_img_alt);
+        			echo halfy('bottom','color',$picked_color,$halfy_img_url,$halfy_img_alt);
         			break;
     			case "2":
-        			echo fuller($picked_color,$full_img_url);
+        			echo fuller($picked_color,$full_img_url,$full_img_alt);
         			break;
     			case "3":
-        			echo fuller($picked_color,$full_img_url); 
+        			echo fuller($picked_color,$full_img_url,$full_img_alt); 
         			break;
         		case "4":
-        			echo halfy('top','color',$picked_color,$halfy_img_url);
-        			echo halfy('bottom','image',$picked_color,$halfy_img_url);
+        			echo halfy('top','color',$picked_color,$halfy_img_url,$halfy_img_alt);
+        			echo halfy('bottom','image',$picked_color,$halfy_img_url,$halfy_img_alt);
         			break;
 			} ?>
         </div>
@@ -101,7 +101,7 @@
         	<div class="col-xs-12">
         		<?php 
         			if (count($grantee_images)==1) {
-        				echo fuller($picked_color,$full_img_url);
+        				echo fuller($picked_color,$full_img_url,$full_img_alt);
         			}
         			echo halfy('bottom','color',$picked_color,''); 
         		?>

@@ -119,24 +119,25 @@ function trunc($phrase, $max_words) {
    	return $phrase;
 }
 //create div arrays so we can randomize block positions
-function fuller($picked_color,$full_img_url) {	 
+function fuller($picked_color,$full_img_url,$full_img_alt) {	 
 	$html = '<div class="full bgstyle" style="background-image:url(\''.$full_img_url.'\')">';
 	$html .= '<div class="title">';
 	if ( is_front_page() ) {
 	  $html .= '<span class="header" style="color:'.$picked_color.';">Recent Grantee</span><br>';
 	}
 	$html .= '<span class="name">'.get_the_title().'</span>';
+	$html .= '<span class="image-description">'.$full_img_alt.'</span>';
 	$html .= '</div>';
 	$html .= '</div>';
 	  					 
     return $html;
 }
-function halfy($pos,$bg_type,$picked_color,$halfy_img_url) {
+function halfy($pos,$bg_type,$picked_color,$halfy_img_url,$halfy_img_alt) {
     $get_grantee_mission = new Grantee_Mission();
 	$grantee_mission = $get_grantee_mission->get_mission();
     if ($bg_type=='image') {
     	$css_value = 'background-image:url(\''.$halfy_img_url.'\')';
-    	$halfy_content="";
+    	$halfy_content='<span class="image-description">'.$halfy_img_alt.'</span>';
     } else {
     	$css_value = 'background-color:'.$picked_color.''; //must be the color
 		$halfy_content=$grantee_mission;

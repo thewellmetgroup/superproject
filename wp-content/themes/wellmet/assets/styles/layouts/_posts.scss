@@ -37,6 +37,9 @@
 		@include breakpoint(medium) {
 			margin-bottom:0;
 		}
+		.image-description {
+			@extend .sr-only;
+		}
 	}
 	
 	.halfy {
