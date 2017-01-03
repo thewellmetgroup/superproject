@@ -140,6 +140,13 @@ function frmFrontFormJS(){
 			maxFilesize: uploadFields[i].maxFilesize,
 			maxFiles: max,
 			uploadMultiple: uploadFields[i].uploadMultiple,
+			hiddenInputContainer:'#'+ form.attr('id'),
+			dictDefaultMessage: uploadFields[i].defaultMessage,
+			dictFallbackMessage: uploadFields[i].fallbackMessage,
+			dictFallbackText: uploadFields[i].fallbackText,
+			dictFileTooBig: uploadFields[i].fileTooBig,
+			dictInvalidFileType: uploadFields[i].invalidFileType,
+			dictResponseError: uploadFields[i].responseError,
 			dictCancelUpload: uploadFields[i].cancel,
 			dictCancelUploadConfirmation: uploadFields[i].cancelConfirm,
 			dictRemoveFile: uploadFields[i].remove,
@@ -167,20 +174,14 @@ function frmFrontFormJS(){
 				this.on('successmultiple', function( files, response ) {
 					var mediaIDs = jQuery.parseJSON(response);
 					for ( var m = 0; m < files.length; m++ ) {
-						jQuery(files[m].previewElement).append( getHiddenUploadHTML( uploadFields[i], mediaIDs[m] ) );
-					}
-				});
-
-				this.on('removedfile', function( file ) {
-					if ( uploadFields[i].uploadMultiple !== true ) {
-						jQuery('input[name="'+ fieldName +'"]').val('');
+						jQuery(files[m].previewElement).append( getHiddenUploadHTML( uploadFields[i], mediaIDs[m], fieldName ) );
 					}
 				});
 
 				this.on('complete', function( file ) {
 					if ( typeof file.mediaID !== 'undefined' ) {
 						if ( uploadFields[i].uploadMultiple ) {
-							jQuery(file.previewElement).append( getHiddenUploadHTML( uploadFields[i], file.mediaID ) );
+							jQuery(file.previewElement).append( getHiddenUploadHTML( uploadFields[i], file.mediaID, fieldName ) );
 						}
 
 						// Add download link to the file
@@ -203,7 +204,11 @@ function frmFrontFormJS(){
 				});
 
 				this.on('removedfile', function( file ) {
-					if ( typeof file.mediaID !== 'undefined' ) {
+					if ( file.accepted !== false && uploadFields[i].uploadMultiple !== true ) {
+						jQuery('input[name="'+ fieldName +'"]').val('');
+					}
+
+					if ( file.accepted !== false && typeof file.mediaID !== 'undefined' ) {
 						jQuery(file.previewElement).remove();
 						var fileCount = this.files.length;
 						this.options.maxFiles = uploadFields[i].maxFiles - fileCount;
@@ -229,8 +234,8 @@ function frmFrontFormJS(){
 		});
 	}
 
-	function getHiddenUploadHTML( field, mediaID ) {
-		return '<input name="'+ field.fieldName +'[]" type="hidden" value="'+ mediaID +'" data-frmfile="'+ field.fieldID +'" />';
+	function getHiddenUploadHTML( field, mediaID, fieldName ) {
+		return '<input name="'+ fieldName +'[]" type="hidden" value="'+ mediaID +'" data-frmfile="'+ field.fieldID +'" />';
 	}
 
 	function removeFile(){
@@ -376,18 +381,19 @@ function frmFrontFormJS(){
 		var field_id = nameParts[0];
 		var isRepeating = false;
 
-		if ( nameParts.length === 1 || nameParts[1] == '[form' || nameParts[1] == '[id' ) {
+		if ( nameParts.length === 1 ) {
 			return field_id;
 		}
 
+		if ( nameParts[1] === '[form' || nameParts[1] === '[row_ids' ) {
+			return 0;
+		}
+
+
 		// Check if 'this' is in a repeating section
 		if ( jQuery('input[name="item_meta['+ field_id +'][form]"]').length ) {
-			// If item_meta[370][0]
-			if ( nameParts.length === 2 && nameParts[1] == '[0' ) {
-				return 0;
-			}
 
-			// this is a repeatable section with name: item_meta[370][0][414]
+			// this is a repeatable section with name: item_meta[repeating-section-id][row-id][field-id]
 			field_id = nameParts[2].replace('[', '');
 			isRepeating = true;
 		}
@@ -452,12 +458,12 @@ function frmFrontFormJS(){
 			return;
 		}
 
-		var childFieldDivs = getAllFieldDivs( depFieldArgs, triggerFieldRepeatArgs );
+		var childFieldDivIds = getAllFieldDivIds( depFieldArgs, triggerFieldRepeatArgs );
 
-		var childFieldNum = childFieldDivs.length;
+		var childFieldNum = childFieldDivIds.length;
 		for ( var i = 0; i<childFieldNum; i++ ) {
-			depFieldArgs.containerId = childFieldDivs[i];
-			addRepeatRow( depFieldArgs, childFieldDivs[i] );
+			depFieldArgs.containerId = childFieldDivIds[i];
+			addRepeatRow( depFieldArgs, childFieldDivIds[i] );
 			hideOrShowSingleField( depFieldArgs );
 		}
 	}
@@ -474,7 +480,7 @@ function frmFrontFormJS(){
 	 * @param {string} depFieldArgs.inEmbedForm
 	 * @returns {Array}
      */
-	function getAllFieldDivs( depFieldArgs, triggerFieldArgs ) {
+	function getAllFieldDivIds( depFieldArgs, triggerFieldArgs ) {
 		var childFieldDivs = [];
 
 		if ( depFieldArgs.isRepeating ) {
@@ -485,11 +491,7 @@ function frmFrontFormJS(){
 				childFieldDivs.push( container );
 			} else {
 				// If trigger field is not repeating/embedded, get all repeating/embedded field divs
-				if ( depFieldArgs.inEmbedForm !== '0' ) {
-					childFieldDivs = getEmbeddedFieldDivs( depFieldArgs );
-				} else {
-					childFieldDivs = getAllRepeatingFieldDivs(depFieldArgs);
-				}
+				childFieldDivs = getAllRepeatingFieldDivIds(depFieldArgs);
 			}
 		} else {
 			childFieldDivs.push( 'frm_field_' + depFieldArgs.fieldId + '_container' );
@@ -499,45 +501,39 @@ function frmFrontFormJS(){
 	}
 
 	/**
-	 * Get the field div for an embedded field
-	 *
-	 * @param {Object} depFieldArgs
-	 * @param {string} depFieldArgs.fieldId
-	 * @returns {Array}
-	 */
-	function getEmbeddedFieldDivs( depFieldArgs ) {
-		var containerFieldId = getContainerFieldId( depFieldArgs );
-		var fieldDiv = 'frm_field_' + depFieldArgs.fieldId + '-' + containerFieldId + '-';
-
-		var childFieldDivs = [ fieldDiv + '0_container' ];
-
-		return childFieldDivs;
-
-	}
-
-	/**
 	 * Get all instances of a repeating field
 	 *
 	 * @since 2.01.0
 	 * @param {Object} depFieldArgs
 	 * @param {string} depFieldArgs.fieldId
      */
-	function getAllRepeatingFieldDivs( depFieldArgs ) {
+	function getAllRepeatingFieldDivIds( depFieldArgs ) {
 		var childFieldDivs = [];
 		var containerFieldId = getContainerFieldId( depFieldArgs );
 
 		// TODO: what if section is inside embedded form?
 
-		// Check if we're on the current page
-		var sectionOnPage = document.getElementById( 'frm_field_' + containerFieldId + '_container' );
-		if ( sectionOnPage !== null ) {
-			// On the current page
-			var childFields = document.querySelectorAll( '.frm_field_' + depFieldArgs.fieldId + '_container' );
-			for ( var i = 0, l=childFields.length; i<l; i++ ) {
-				childFieldDivs.push( childFields[i].id );
-			}
+		if ( isFieldDivOnPage( 'frm_field_' + containerFieldId + '_container' ) ) {
+			childFieldDivs = getRepeatingFieldDivIdsOnCurrentPage( depFieldArgs.fieldId );
 		} else {
-			childFieldDivs = getRepeatingFieldDivsAcrossPage( depFieldArgs );
+			childFieldDivs = getRepeatingFieldDivIdsAcrossPage( depFieldArgs );
+		}
+
+		return childFieldDivs;
+	}
+
+	/**
+	 * Get all repeating field divs on the current page
+	 *
+	 * @since 2.02.06
+	 * @param string fieldId
+	 * @returns {Array}
+     */
+	function getRepeatingFieldDivIdsOnCurrentPage( fieldId ) {
+		var childFieldDivs = [];
+		var childFields = document.querySelectorAll( '.frm_field_' + fieldId + '_container' );
+		for ( var i = 0, l=childFields.length; i<l; i++ ) {
+			childFieldDivs.push( childFields[i].id );
 		}
 
 		return childFieldDivs;
@@ -548,32 +544,23 @@ function frmFrontFormJS(){
 	 *
 	 * @param {Object} depFieldArgs
 	 * @param {string} depFieldArgs.fieldId
-	 * @param {string} depFieldArgs.inSectionKey
 	 * @returns {Array}
-	 * TODO: Maybe improve this by inserting hidden fields for each field in a repeating section, even if section is on pg 2
 	 */
-	function getRepeatingFieldDivsAcrossPage( depFieldArgs ) {
+	function getRepeatingFieldDivIdsAcrossPage( depFieldArgs ) {
 		var childFieldDivs = [];
 		var containerFieldId = getContainerFieldId( depFieldArgs );
 		var fieldDiv = 'frm_field_' + depFieldArgs.fieldId + '-' + containerFieldId + '-';
 
-		var allRows = document.querySelectorAll( '[id^="field_' + depFieldArgs.inSectionKey + '-rowid-"]' );
+		var allRows = document.querySelectorAll( '[name="item_meta[' + containerFieldId + '][row_ids][]"]' );
 
-		// If no rows have been added to the repeating section yet, assume just one row
-		if ( allRows.length < 1 ) {
+        for ( var i = 0, l = allRows.length; i<l; i++ ) {
+            if ( allRows[i].value !== '' ) {
+                childFieldDivs.push(fieldDiv + allRows[i].value + '_container');
+            }
+        }
+
+        if ( childFieldDivs.length < 1 ) {
 			childFieldDivs.push( fieldDiv + '0_container' );
-			return childFieldDivs;
-		}
-
-		var currentIdParts = [];
-		for ( var i = 0, l = allRows.length; i<l; i++ ) {
-			currentIdParts = allRows[i].id.split( '-' );
-
-			if ( currentIdParts.length != 3 ) {
-				continue;
-			}
-
-			childFieldDivs.push(fieldDiv + currentIdParts[2] + '_container');
 		}
 
 		return childFieldDivs;
@@ -785,7 +772,7 @@ function frmFrontFormJS(){
 		}
 
 		if ( checkedVals.length === 0 ) {
-			checkedVals = '';
+			checkedVals = false;
 		}
 
 		return checkedVals;
@@ -875,8 +862,8 @@ function frmFrontFormJS(){
 					return false;
 				}
 
-				d = prepareValueForLikeComparison( d );
-				c = prepareValueForLikeComparison( c );
+				c = prepareLogicValueForLikeComparison( c );
+				d = prepareEnteredValueForLikeComparison( c, d );
 
 				return d.indexOf( c ) != -1;
 			},
@@ -886,8 +873,8 @@ function frmFrontFormJS(){
 					return true;
 				}
 
-				d = prepareValueForLikeComparison( d );
-				c = prepareValueForLikeComparison( c );
+				c = prepareLogicValueForLikeComparison( c );
+				d = prepareEnteredValueForLikeComparison( c, d );
 
 				return d.indexOf( c ) == -1;
 			}
@@ -925,6 +912,26 @@ function frmFrontFormJS(){
 		return b;
 	}
 
+	function prepareLogicValueForLikeComparison( val ) {
+		return prepareValueForLikeComparison( val );
+	}
+
+	function prepareEnteredValueForLikeComparison( logicValue, enteredValue ) {
+		enteredValue = prepareValueForLikeComparison( enteredValue );
+
+		var currentValue = '';
+		if ( jQuery.isArray(enteredValue) ) {
+			for ( var i = 0, l = enteredValue.length; i<l; i++ ) {
+				currentValue = enteredValue[i].toLowerCase();
+				if ( currentValue.indexOf( logicValue ) > -1 ) {
+					enteredValue = logicValue;
+					break;
+				}
+			}
+		 }
+
+		return enteredValue;
+	}
 
 	function prepareValueForLikeComparison( val ) {
 		if ( typeof val === 'string' ) {
@@ -1088,7 +1095,8 @@ function frmFrontFormJS(){
 		var name = '';
 		if ( depFieldArgs.isRepeating ) {
 			//item_meta[section-id][row-id][field-id]
-			name = 'item_meta[' + depFieldArgs.inSection +'][' + depFieldArgs.repeatRow + '][' + depFieldArgs.fieldId + ']';
+			var containerFieldId = getContainerFieldId( depFieldArgs );
+			name = 'item_meta[' + containerFieldId +'][' + depFieldArgs.repeatRow + '][' + depFieldArgs.fieldId + ']';
 		} else {
 			// item_meta[field-id]
 			name = 'item_meta[' + depFieldArgs.fieldId + ']';
@@ -1217,7 +1225,8 @@ function frmFrontFormJS(){
 					inputs[i].selectedIndex = 0;
 				}
 
-				var autocomplete = document.getElementById( inputs[i].id + '_chosen' );
+				var chosenId = inputs[i].id.replace(/[^\w]/g, '_'); // match what the script is doing
+				var autocomplete = document.getElementById( chosenId + '_chosen' );
 				if ( autocomplete !== null ) {
 					jQuery(inputs[i]).trigger('chosen:updated');
 				}
@@ -1681,7 +1690,7 @@ function frmFrontFormJS(){
 				triggerChange(jQuery(childSelect), childFieldArgs.fieldKey);
 			}
 		} else {
-			addLoadingTextToLookup( childSelect );
+			disableLookup( childSelect );
 
 			// If all parents have values, check for updated options
 			jQuery.ajax({
@@ -1708,11 +1717,27 @@ function frmFrontFormJS(){
 		}
 	}
 
-	function addLoadingTextToLookup( childSelect ) {
-		if ( ! childSelect.value ) {
-			childSelect.options.length = 1;
-			childSelect.options[1] = new Option(frm_js.loading, '', false, false);
-		}
+	/**
+	 * Disable a Select Lookup field and add loading image
+	 *
+	 * @since 2.02.11
+	 * @param {object} childSelect
+	 */
+	function disableLookup( childSelect ) {
+		childSelect.className = childSelect.className + ' frm_loading_lookup';
+		childSelect.disabled = true;
+		maybeUpdateChosenOptions( childSelect );
+	}
+
+	/**
+	 * Enable a Select Lookup field and remove loading image
+	 *
+	 * @since 2.02.11
+	 * @param {object} childSelect
+	 */
+	function enableLookup( childSelect ) {
+		childSelect.disabled = false;
+		childSelect.className = childSelect.className.replace( ' frm_loading_lookup', '' );
 	}
 
 	/**
@@ -1740,6 +1765,8 @@ function frmFrontFormJS(){
 		}
 
 		setSelectLookupVal( childSelect, origVal );
+
+		enableLookup( childSelect );
 
 		maybeUpdateChosenOptions( childSelect );
 
@@ -1808,6 +1835,8 @@ function frmFrontFormJS(){
 			currentValue = getValuesFromCheckboxInputs(inputs);
 		}
 
+		var defaultValue = jQuery( inputs[0] ).data( 'frmval' );
+
 		jQuery.ajax({
 			type:'POST',
 			url:frm_js.ajax_url,
@@ -1818,6 +1847,7 @@ function frmFrontFormJS(){
 				field_id:childFieldArgs.fieldId,
 				row_index:childFieldArgs.repeatRow,
 				current_value:currentValue,
+				default_value:defaultValue,
 				nonce:frm_js.nonce
 			},
 			success:function(newHtml){
@@ -1829,11 +1859,42 @@ function frmFrontFormJS(){
 					maybeHideRadioLookup( childFieldArgs, childDiv );
 				} else {
 					maybeShowRadioLookup( childFieldArgs, childDiv );
+					maybeSetDefaultCbRadioValue( childFieldArgs, inputs, defaultValue );
 				}
 
 				triggerChange( jQuery( inputs[0] ), childFieldArgs.fieldKey );
 			}
 		});
+	}
+
+	/**
+	 * Select the defatul value in a radio/checkbox field if no value is selected
+	 *
+	 * @since 2.02.11
+	 *
+	 * @param {Object} inputs
+	 * @param {Object} childFieldArgs
+	 * @param {string} childFieldArgs.inputType
+	 * @param {(string|Array)} defaultValue
+     */
+	function maybeSetDefaultCbRadioValue( childFieldArgs, inputs, defaultValue ) {
+		if ( defaultValue === undefined ) {
+			return;
+		}
+
+		var currentValue = false;
+		if ( childFieldArgs.inputType == 'radio' ) {
+			currentValue = getValueFromRadioInputs( inputs );
+		} else {
+			currentValue = getValuesFromCheckboxInputs(inputs);
+		}
+
+		if ( currentValue !== false || inputs.length < 1 ) {
+			return;
+		}
+
+		var inputName = inputs[0].name;
+		setCheckboxOrRadioDefaultValue( inputName, defaultValue )
 	}
 
 	/**
@@ -2068,6 +2129,7 @@ function frmFrontFormJS(){
 		var $fieldInputs = $fieldDiv.find( 'select[name^="item_meta"], input[name^="item_meta"]' );
 		var prevValue = getFieldValueFromInputs( $fieldInputs );
 		var defaultVal = $fieldInputs.data('frmval');
+		var editingEntry = $fieldDiv.closest('form').find('input[name="id"]').val();
 
 		addLoadingIcon( $fieldDiv );
 
@@ -2081,6 +2143,7 @@ function frmFrontFormJS(){
 				field_id:depFieldArgs.fieldId,
 				default_value:defaultVal,
 				container_id:depFieldArgs.containerId,
+				editing_entry:editingEntry,
 				prev_val:prevValue,
 				nonce:frm_js.nonce
 			},
@@ -2386,7 +2449,7 @@ function frmFrontFormJS(){
 			var dec = thisCalc.calc_dec;
 
 			// allow .toFixed for reverse compatability
-			if ( thisFullCalc.indexOf(').toFixed(') ) {
+			if ( thisFullCalc.indexOf(').toFixed(') > -1 ) {
 				var calcParts = thisFullCalc.split(').toFixed(');
 				if ( isNumeric(calcParts[1]) ) {
 					dec = calcParts[1];
@@ -2449,10 +2512,10 @@ function frmFrontFormJS(){
 	}
 
 	function getCallForField( field, all_calcs ) {
-		if ( field.thisField.type == 'checkbox' || field.thisField.type == 'select' ) {
-			field.thisFieldCall = field.thisFieldCall +':checked,select'+ all_calcs.fieldKeys[field.thisFieldId] +' option:selected,'+ field.thisFieldCall+'[type=hidden]';
-		} else if ( field.thisField.type == 'radio' || field.thisField.type == 'scale' ) {
-			field.thisFieldCall = field.thisFieldCall +':checked,'+ field.thisFieldCall +'[type=hidden]';
+		if ( field.thisField.type == 'checkbox' || field.thisField.type == 'radio' || field.thisField.type == 'scale' ) {
+			field.thisFieldCall = field.thisFieldCall +':checked,'+ field.thisFieldCall+'[type=hidden]';
+		} else if ( field.thisField.type == 'select' || field.thisField.type == 'time' ) {
+			field.thisFieldCall = 'select'+ all_calcs.fieldKeys[field.thisFieldId] +' option:selected,'+ field.thisFieldCall+'[type=hidden]';
 		} else if ( field.thisField.type == 'textarea' ) {
 			field.thisFieldCall = field.thisFieldCall + ',textarea'+ all_calcs.fieldKeys[field.thisFieldId];
 		}
@@ -2581,10 +2644,21 @@ function frmFrontFormJS(){
 			return vals;
 		}
 
+		var count = 0;
+		var sep = '';
+
 		calcField.each(function(){
 			var thisVal = getOptionValue( field.thisField, this );
 			thisVal = thisVal.trim();
-			vals[field.valKey] += thisVal;
+
+			if ( count > 0 ) {
+				sep = ', ';
+			}
+
+			if ( thisVal !== '' ) {
+				vals[field.valKey] += sep + thisVal;
+				count++;
+			}
 		});
 
 		return vals;
@@ -3027,8 +3101,6 @@ function frmFrontFormJS(){
 	}
 
 	function getFormErrors(object, action){
-		jQuery(object).find('input[type="submit"], input[type="button"]').attr('disabled','disabled');
-
 		if(typeof action == 'undefined'){
 			jQuery(object).find('input[name="frm_action"]').val();
 		}
@@ -3056,8 +3128,10 @@ function frmFrontFormJS(){
 
 					jQuery(object).find('.frm_ajax_loading').removeClass('frm_loading_now');
 					var formID = jQuery(object).find('input[name="form_id"]').val();
-					jQuery(object).closest( '#frm_form_'+ formID +'_container' ).replaceWith( response.content );
-					frmFrontForm.scrollMsg( formID );
+					jQuery(object).closest( '.frm_forms' ).replaceWith( response.content );
+					if ( frm_js.offset != -1 ) {
+						frmFrontForm.scrollMsg( jQuery(object), false );
+					}
 
 					if(typeof(frmThemeOverride_frmAfterSubmit) == 'function'){
 						var pageOrder = jQuery('input[name="frm_page_order_'+ formID +'"]').val();
@@ -3252,19 +3326,15 @@ function frmFrontFormJS(){
 
     /* Google Tables */
 
-	function prepareGraphTypes( graphs, graphType ) {
+	function generateGoogleTables( graphs, graphType ) {
 		for ( var num = 0; num < graphs.length; num++ ) {
-			prepareGraphs( graphs[num], graphType );
+			generateSingleGoogleTable( graphs[num], graphType );
 		}
 	}
 
-	function prepareGraphs( opts, type ) {
+	function generateSingleGoogleTable( opts, type ) {
 		google.load('visualization', '1.0', {'packages':[type], 'callback': function(){
-			if ( type == 'table' ) {
-				compileGoogleTable( opts );
-			} else {
-				compileGraph( opts );
-			}
+			compileGoogleTable( opts );
 		}});
 	}
 
@@ -3370,110 +3440,80 @@ function frmFrontFormJS(){
         chart.draw( data, opts.graphOpts );
     }
 
-    function getGraphType(field){
-        var type = 'string';
-        if ( field.type == 'number' ){
-            type = 'number';
-        } else if ( field.type == 'checkbox' || field.type == 'select' ) {
-            var optCount = field.options.length;
-            if ( field.type == 'select' && field.options[0] === '' ) {
-                if ( field.field_options.post_field == 'post_status' ) {
-                    optCount = 3;
-                } else {
-                    optCount = optCount - 1;
-                }
-            }
-            if ( optCount == 1 ) {
-                type = 'boolean';
-            }
-        }
-        return type;
-    }
+	/** Google Graphs **/
 
-    function compileGraph(opts){
-        var data = new google.visualization.DataTable();
-        var useSepCol = false;
-		var useTooltip = false;
+	function generateGoogleGraphs( graphs ) {
+		for ( var i = 0, l=graphs.length; i < l; i++ ) {
+			generateSingleGoogleGraph( graphs[i] );
+		}
+	}
 
-        // add the rows
-        var rowCount = opts.rows.length;
-        if ( rowCount > 0 ) {
-            if ( opts.type == 'table' ) {
-                useSepCol = true;
-                var lastRow = opts.rows[rowCount - 1];
-                var count = lastRow[0] + 1;
-                data.addRows(count);
+	function generateSingleGoogleGraph( graphData ) {
+		google.load('visualization', '1.0', {'packages':[ graphData.package ], 'callback': function() {
+			compileGoogleGraph( graphData );
+		} } );
+	}
 
-                for ( var r = 0, len = rowCount; r < len; r++ ) {
-                    data.setCell( opts.rows[r] ); //data.setCell(0, 0, 'Mike');
-                }
-            }else{
-                var firstRow = opts.rows[0];
-                if ( typeof firstRow.tooltip != 'undefined' ) {
-                    useSepCol = true;
-					useTooltip = true;
+	function compileGoogleGraph( graphData ) {
+		var data = new google.visualization.DataTable();
+		data = google.visualization.arrayToDataTable(graphData.data);
 
-					// reset the tooltip key to numeric
-					for ( var row = 0, rc = rowCount; row < rc; row++ ) {
-						var tooltip = opts.rows[row].tooltip;
-						delete opts.rows[row].tooltip;
+		var chartDiv = document.getElementById('chart_'+ graphData.graph_id);
+		if ( chartDiv === null ) {
+			return;
+		}
 
-						var rowArray = Object.keys(opts.rows[row]).map( function(k){
-							return opts.rows[row][k];
-						} );
+		var type = (graphData.type.charAt(0).toUpperCase() + graphData.type.slice(1));
+		if ( type !== 'Histogram' && type !== 'Table' ) {
+			type += 'Chart';
+		}
 
-						opts.rows[row] = rowArray;
-						opts.rows[row].push(tooltip);
-					}
-                }
-            }
-        }
+		var chart = new google.visualization[type]( chartDiv );
+		chart.draw(data, graphData.options);
+	}
 
-        // add the columns
-        var colCount = opts.cols.length;
-        if ( useSepCol ) {
-            if ( colCount > 0 ) {
-                for ( var i = 0, l = colCount; i < l; i++ ) {
-                    var col = opts.cols[i];
-                    data.addColumn(col.type, col.name);
-                }
-            }
-			if ( useTooltip ) {
-				data.addColumn({type:'string',role:'tooltip'});
-				data.addRows(opts.rows);
+	function getGraphType(field){
+		var type = 'string';
+		if ( field.type == 'number' ){
+			type = 'number';
+		} else if ( field.type == 'checkbox' || field.type == 'select' ) {
+			var optCount = field.options.length;
+			if ( field.type == 'select' && field.options[0] === '' ) {
+				if ( field.field_options.post_field == 'post_status' ) {
+					optCount = 3;
+				} else {
+					optCount = optCount - 1;
+				}
 			}
-        } else {
-            var graphData = [];
-            graphData[0] = [];
-            for ( var c = 0, cur = colCount; c < cur; c++ ) {
-                graphData[0].push(opts.cols[c].name);
-            }
-            graphData = graphData.concat(opts.rows);
-            data = google.visualization.arrayToDataTable(graphData);
-        }
-
-        var type = (opts.type.charAt(0).toUpperCase() + opts.type.slice(1)) + 'Chart';
-        var chart = new google.visualization[type](document.getElementById('chart_'+ opts.graph_id));
-
-        chart.draw(data, opts.options);
-    }
+			if ( optCount == 1 ) {
+				type = 'boolean';
+			}
+		}
+		return type;
+	}
 	
 	/* Repeating Fields */
 	function removeRow(){
 		/*jshint validthis:true */
-		var id = 'frm_section_'+ jQuery(this).data('parent') +'-'+ jQuery(this).data('key');
+		var rowNum = jQuery(this).data('key');
+		var sectionID = jQuery(this).data('parent');
+		var id = 'frm_section_'+ sectionID +'-'+ rowNum;
 		var thisRow = jQuery(document.getElementById(id));
 		var fields = thisRow.find('input, select, textarea');
+		var formId = jQuery(this).closest('form').find('input[name="form_id"]').val();
 
 		thisRow.fadeOut('slow', function(){
 			thisRow.remove();
 
 			fields.each(function(){
 				/* update calculations when a row is removed */
+				var fieldID = getFieldId( this, false );
 				if ( this.type != 'file' ) {
-					var fieldID = getFieldId( this, false );
 					doCalculation(fieldID, jQuery(this));
 				}
+
+				var container = 'frm_field_' + fieldID + '-' + sectionID + '-' + rowNum + '_container';
+				removeFromHideFields( container, formId );
 			});
 
 			if(typeof(frmThemeOverride_frmRemoveRow) == 'function'){
@@ -3537,6 +3577,7 @@ function frmFrontFormJS(){
 							if ( this.id === false || this.id === '' ) {
 								return;
 							}
+
 							fieldObject = jQuery( '#' + this.id );
 							checked.push(fieldID);
 							hideOrShowFieldById( fieldID, repeatArgs );
@@ -3639,7 +3680,10 @@ function frmFrontFormJS(){
 				data:{action:'frm_entries_destroy', entry:entry_id, nonce:frm_js.nonce},
 				success:function(html){
 					if(html.replace(/^\s+|\s+$/g,'') == 'success'){
-						jQuery(document.getElementById(prefix+entry_id)).fadeOut('slow');
+						var container = jQuery(document.getElementById(prefix+entry_id));
+						container.fadeOut('slow', function(){
+							container.remove();
+						});
 						jQuery(document.getElementById('frm_delete_'+entry_id)).fadeOut('slow');
 					}else{
 						jQuery(document.getElementById('frm_delete_'+entry_id)).replaceWith(html);
@@ -3674,7 +3718,7 @@ function frmFrontFormJS(){
 
 	function loadChosen() {
 		if ( jQuery().chosen ) {
-			var opts = {allow_single_deselect:true};
+			var opts = {allow_single_deselect:true,no_results_text:frm_js.no_results};
 			if ( typeof __frmChosen !== 'undefined' ) {
 				opts = '{' + __frmChosen + '}';
 			}
@@ -3957,6 +4001,10 @@ function frmFrontFormJS(){
 
 			if ( Object.keys(errors).length === 0 ) {
 				jQuery(object).find('.frm_ajax_loading').addClass('frm_loading_now');
+
+				// Disable submit button
+				jQuery(object).find('input[type="submit"], input[type="button"]').attr('disabled','disabled');
+
 				if ( classList.indexOf('frm_ajax_submit') > -1 ) {
 					var hasFileFields = jQuery(object).find('input[type="file"]').length;
 					if ( hasFileFields < 1 ) {
@@ -4034,6 +4082,9 @@ function frmFrontFormJS(){
 			var scrollObj = '';
 			if(typeof(object) == 'undefined'){
 				scrollObj = jQuery(document.getElementById('frm_form_'+id+'_container'));
+				if(scrollObj.length < 1 ){
+					return;
+				}
 			} else if ( typeof id == 'string' ) {
 				scrollObj = jQuery(object).find('#frm_field_'+id+'_container');
 			} else {
@@ -4121,7 +4172,11 @@ function frmFrontFormJS(){
 				var packages = Object.keys( graphs );
 				//google.load('visualization', '1.0', {'packages':packages});
 				for ( var i = 0; i < packages.length; i++ ) {
-					prepareGraphTypes( graphs[ packages[i] ], packages[i] );
+					if ( packages[i] === 'graphs' ) {
+						generateGoogleGraphs( graphs[ packages[i] ] );
+					} else {
+						generateGoogleTables(graphs[packages[i]], packages[i]);
+					}
 				}
 			} else {
 				setTimeout( frmFrontForm.loadGoogle, 30 );

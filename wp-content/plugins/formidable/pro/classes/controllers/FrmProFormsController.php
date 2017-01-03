@@ -6,7 +6,7 @@ class FrmProFormsController{
         global $frm_vars;
 
         $post_types = FrmProAppHelper::get_custom_post_types();
-		$has_file_field = FrmProFormsHelper::has_field( 'file', $values['id'], true );
+		$has_file_field = FrmField::get_all_types_in_form( $values['id'], 'file', 2, 'include' );
 
         require(FrmAppHelper::plugin_path() .'/pro/classes/views/frmpro-forms/add_form_options.php');
     }
@@ -126,7 +126,7 @@ class FrmProFormsController{
 
         if ( is_array($all_atts) ) {
             foreach ( $all_atts as $att => $val ) {
-                $_GET[$att] = urlencode($val);
+                $_GET[ $att ] = $val;
                 unset($att, $val);
             }
         }
@@ -177,7 +177,7 @@ class FrmProFormsController{
 
 		foreach ( $shortcodes[0] as $short_key => $tag ) {
             $replace_with = '';
-            $atts = shortcode_parse_atts( $shortcodes[3][$short_key] );
+            $atts = FrmShortcodeHelper::get_shortcode_attribute_array( $shortcodes[3][$short_key] );
 
 			switch ( $shortcodes[2][ $short_key ] ) {
                 case 'deletelink':
@@ -230,7 +230,7 @@ class FrmProFormsController{
 
     public static function replace_content_shortcodes($content, $entry, $shortcodes) {
         remove_filter('frm_replace_content_shortcodes', 'FrmFormsController::replace_content_shortcodes', 20);
-        return FrmProFieldsHelper::replace_shortcodes($content, $entry, $shortcodes);
+		return FrmProContent::replace_shortcodes( $content, $entry, $shortcodes );
     }
 
     public static function conditional_options($options) {
@@ -277,6 +277,7 @@ class FrmProFormsController{
             'user_login'    => __( 'User Login', 'formidable' ),
             'user_email'    => __( 'Email', 'formidable' ),
             'avatar'        => __( 'Avatar', 'formidable' ),
+			'author_link'   => __( 'Author Link', 'formidable' ),
         );
 
         $options = array_merge($options, $user_fields);
@@ -325,39 +326,6 @@ class FrmProFormsController{
 		extract( $atts );
         include(FrmAppHelper::plugin_path() .'/pro/classes/views/frmpro-forms/_logic_row.php');
     }
-
-	public static function add_form_row() {
-        //check_ajax_referer( 'frm_ajax', 'nonce' );
-
-		$field_id = absint( $_POST['field_id'] );
-	    if ( ! $field_id ) {
-	        wp_die();
-	    }
-
-	    $field = FrmField::getOne($field_id);
-
-	    $args = array(
-			'i'         => absint( $_POST['i'] ),
-			'parent_field' => absint( $field->id ),
-            'form'      => (isset($field->field_options['form_select']) ? $field->field_options['form_select'] : 0),
-            'repeat'    => 1,
-        );
-        $field_name = 'item_meta['. $args['parent_field'] .']';
-
-		// let's show a textarea since the ajax with multiple rte doesn't work well in WP right now
-		global $frm_vars;
-		$frm_vars['skip_rte'] = true;
-
-		$response = array();
-
-		ob_start();
-		FrmProFormsHelper::repeat_field_set( $field_name, $args );
-		$response['html'] = ob_get_contents();
-		ob_end_clean();
-
-		echo json_encode( $response );
-	    wp_die();
-	}
 
 	public static function setup_new_vars($values) {
 	    return FrmProFormsHelper::setup_new_vars($values);
@@ -442,72 +410,65 @@ class FrmProFormsController{
     }
 
     private static function popup_opts_frm_graph(array &$opts, $shortcode) {
-        $form_list = FrmForm::getAll( array( 'status' => 'published', 'is_template' => 0), 'name');
+		$where = array(
+			'status' => 'published',
+			'is_template' => 0,
+			array( 'or' => 1, 'parent_form_id' => null, 'parent_form_id <' => 1 ),
+		);
+		$form_list = FrmForm::getAll( $where, 'name' );
 
     ?>
-        <h4 class="frm_left_label"><?php _e( 'Select a field:', 'formidable' ) ?></h4>
+		<h4 class="frm_left_label"><?php _e( 'Select a form and field:', 'formidable' ) ?></h4>
 
-        <select class="frm_get_field_selection" id="frm_form_frmsc_<?php echo esc_attr( $shortcode ) ?>_id">
-            <option value="">&mdash; <?php _e( 'Select Form', 'formidable' ) ?> &mdash;</option>
-            <?php foreach ( $form_list as $form_opts ) { ?>
-            <option value="<?php echo esc_attr( $form_opts->id ) ?>"><?php echo '' == $form_opts->name ? __( '(no title)', 'formidable' ) : esc_html( FrmAppHelper::truncate($form_opts->name, 30) ) ?></option>
-            <?php } ?>
-        </select>
+		<select class="frm_get_field_selection" id="<?php echo esc_attr( $shortcode ) ?>_form">
+			<option value="">&mdash; <?php _e( 'Select Form', 'formidable' ) ?> &mdash;</option>
+			<?php foreach ( $form_list as $form_opts ) { ?>
+			<option value="<?php echo esc_attr( $form_opts->id ) ?>"><?php echo '' == $form_opts->name ? __( '(no title)', 'formidable' ) : esc_html( FrmAppHelper::truncate($form_opts->name, 50) ) ?></option>
+			<?php } ?>
+		</select>
 
-        <span id="frm_form_frmsc_<?php echo esc_attr( $shortcode ) ?>_id_fields">
-        </span>
+		<span id="<?php echo esc_attr( $shortcode ) ?>_fields_container">
+		</span>
 
-        <div class="frm_box_line"></div>
-<?php
+		<div class="frm_box_line"></div><?php
 
-        $opts = array(
-            'type'  => array(
-                'val'   => 'default', 'label' => __( 'Graph Type', 'formidable' ), 'type' => 'select',
-                'opts'  => array(
-                    'default'   => __( 'Default', 'formidable' ),
-                    'bar'       => __( 'Bar', 'formidable' ),
-                    'column'    => __( 'Column', 'formidable' ),
-                    'pie'       => __( 'Pie', 'formidable' ),
-                    'line'      => __( 'Line', 'formidable' ),
-                    'area'      => __( 'Area', 'formidable' ),
-                    'SteppedArea' => __( 'Stepped Area', 'formidable' ),
-                    'geo'       => __( 'Geolocation Map', 'formidable' ),
-                ),
-            ),
-            'data_type' => array(
-                'val'   => 'count', 'label' => __( 'Data Type', 'formidable' ), 'type' => 'select',
-                'opts'  => array(
-                    'count' => __( 'The number of entries', 'formidable' ),
-                    'total' => __( 'Add the field values together', 'formidable' ),
-                    'average' => __( 'Average the totaled field values', 'formidable' ),
-                ),
-            ),
-            'height'    => array( 'val' => '', 'label' => __( 'Height', 'formidable' ), 'type' => 'text'),
-            'width'     => array( 'val' => '', 'label' => __( 'Width', 'formidable' ), 'type' => 'text'),
-            'bg_color'  => array( 'val' => '', 'label' => __( 'Background color', 'formidable' ), 'type' => 'text'),
-            'truncate_label' => array( 'val' => '', 'label' => __( 'Truncate graph labels', 'formidable' ), 'type' => 'text'),
-            'truncate'  => array( 'val' => '', 'label' => __( 'Truncate title', 'formidable' ), 'type' => 'text'),
-            'title'     => array( 'val' => '', 'label' => __( 'Graph title', 'formidable' ), 'type' => 'text'),
-            'title_size'=> array( 'val' => '', 'label' => __( 'Title font size', 'formidable' ), 'type' => 'text'),
-            'title_font'=> array( 'val' => '', 'label' => __( 'Title font name', 'formidable' ), 'type' => 'text'),
-            'is3d'      => array(
-                'val'   => 1, 'label' => __( 'Turn your pie graph three-dimensional', 'formidable' ),
-                'show'  => array( 'type' => 'pie'),
-            ),
-            'include_zero' => array( 'val' => 1, 'label' => __( 'When using dates for the x_axis parameter, you can also fill in dates with a zero value. This will also apply to dropdown, radio, and checkbox fields with no x_axis defined.', 'formidable' )),
-            'show_key' => array( 'val' => 1, 'label' => __( 'Include the key with the graph', 'formidable' )),
-        );
-
-        /*
-            'ids' => false,
-            'colors' => '', 'grid_color' => '#CCC',
-            'response_count' => 10, 'user_id' => false, 'entry_id' => false,
-            'x_axis' => false, 'limit' => '',
-            'x_start' => '', 'x_end' => '', 'min' => '', 'max' => '', 'y_title' => '', 'x_title' => '',
-            'field' => false, 'tooltip_label' => '',
-			'start_date' => '', 'end_date' => '', 'group_by' => '', 'x_order' => '1',
-			any field id in this form => value
-        */
+		$opts = array(
+			'type'  => array(
+				'val'   => 'default', 'label' => __( 'Graph Type', 'formidable' ), 'type' => 'select',
+				'opts'  => array(
+					'column'    => __( 'Column', 'formidable' ),
+					'hbar'    => __( 'Horizontal Bar', 'formidable' ),
+					'pie'       => __( 'Pie', 'formidable' ),
+					'line'      => __( 'Line', 'formidable' ),
+					'area'      => __( 'Area', 'formidable' ),
+					'scatter'      => __( 'Scatter', 'formidable' ),
+					'histogram'      => __( 'Histogram', 'formidable' ),
+					'table'      => __( 'Table', 'formidable' ),
+					'stepped_area' => __( 'Stepped Area', 'formidable' ),
+					'geo'       => __( 'Geographical Map', 'formidable' ),
+				),
+			),
+			'data_type' => array(
+				'val'   => 'count', 'label' => __( 'Data Type', 'formidable' ), 'type' => 'select',
+				'opts'  => array(
+					'count' => __( 'The number of entries', 'formidable' ),
+					'total' => __( 'Add the field values together', 'formidable' ),
+					'average' => __( 'Average the totaled field values', 'formidable' ),
+				),
+			),
+			'height'    => array( 'val' => '', 'label' => __( 'Height', 'formidable' ), 'type' => 'text'),
+			'width'     => array( 'val' => '', 'label' => __( 'Width', 'formidable' ), 'type' => 'text'),
+			'bg_color'  => array( 'val' => '', 'label' => __( 'Background color', 'formidable' ), 'type' => 'text'),
+			'title'     => array( 'val' => '', 'label' => __( 'Graph title', 'formidable' ), 'type' => 'text'),
+			'title_size'=> array( 'val' => '', 'label' => __( 'Title font size', 'formidable' ), 'type' => 'text'),
+			'title_font'=> array( 'val' => '', 'label' => __( 'Title font name', 'formidable' ), 'type' => 'text'),
+			'is3d'      => array(
+				'val'   => 1, 'label' => __( 'Turn your pie graph three-dimensional', 'formidable' ),
+				'show'  => array( 'type' => 'pie'),
+			),
+			'include_zero' => array( 'val' => 1, 'label' => __( 'When using dates for the x_axis parameter, you can include dates with a zero value.', 'formidable' )),
+			'show_key' => array( 'val' => 1, 'label' => __( 'Include a legend with the graph', 'formidable' )),
+		);
     }
 
     private static function popup_opts_frm_show_entry(array &$opts, $shortcode) {
@@ -637,8 +598,7 @@ class FrmProFormsController{
 
 		$post_values = stripslashes_deep( $_POST );
 		if ( ! isset( $values['custom_style'] ) ) {
-			$frm_settings = FrmAppHelper::get_settings();
-			$values['custom_style'] = ( $post_values && isset( $post_values['options']['custom_style'] ) ) ? absint( $_POST['options']['custom_style'] ) : ( $frm_settings->load_style != 'none' );
+			$values['custom_style'] = FrmAppHelper::custom_style_value( $post_values );
 		}
 
 		foreach ( array( 'before', 'after', 'submit' ) as $h ) {
@@ -673,4 +633,8 @@ class FrmProFormsController{
     public static function validate( $errors, $values ){
         return FrmProForm::validate( $errors, $values );
     }
+
+	public static function add_form_row( ) {
+		FrmProNestedFormsController::ajax_add_repeat_row();
+	}
 }

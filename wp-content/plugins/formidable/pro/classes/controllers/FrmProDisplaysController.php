@@ -70,7 +70,7 @@ class FrmProDisplaysController {
 
 		if ( isset( $_REQUEST['form'] ) && is_numeric( $_REQUEST['form'] ) && isset( $query->query_vars['post_type'] ) && self::$post_type == $query->query_vars['post_type'] ) {
 			$query->query_vars['meta_key'] = 'frm_form_id';
-			$query->query_vars['meta_value'] = (int)$_REQUEST['form'];
+			$query->query_vars['meta_value'] = absint( $_REQUEST['form'] );
 		}
 
 		return $query;
@@ -844,7 +844,7 @@ class FrmProDisplaysController {
 		$user_id = FrmAppHelper::get_user_id_param( $atts['user_id'] );
 
 		if ( !empty( $atts['get'] ) ) {
-			$_GET[ $atts['get'] ] = urlencode( $atts['get_value'] );
+			$_GET[ $atts['get'] ] = $atts['get_value'];
 		}
 
 		$get_atts = $atts;
@@ -853,7 +853,7 @@ class FrmProDisplaysController {
 		}
 
 		foreach ( $get_atts as $att => $val ) {
-			$_GET[ $att ] = urlencode( $val );
+			$_GET[ $att ] = $val;
 			unset( $att, $val );
 		}
 
@@ -1496,7 +1496,15 @@ class FrmProDisplaysController {
 	 * @return string
 	 */
 	private static function get_detail_param( $view, $atts ) {
-		return FrmAppHelper::simple_get( $view->frm_param, 'sanitize_title', $atts['auto_id'] );
+		$entry_key = get_query_var( $view->frm_param );
+		if ( empty( $entry_key ) ) {
+			$entry_key = FrmAppHelper::simple_get( $view->frm_param, 'sanitize_title', $atts['auto_id'] );
+		} else {
+			// for compatibility with features checking GET
+			$_GET[ $view->frm_param ] = $entry_key;
+		}
+
+		return $entry_key;
 	}
 
 	/**
@@ -1727,6 +1735,8 @@ class FrmProDisplaysController {
 			return;
 		}
 
+		$original_value = $where_val;
+
 		if ( $where_val == 'NOW' ) {
 			$where_val = current_time( 'mysql', 1 );
 		}
@@ -1740,7 +1750,9 @@ class FrmProDisplaysController {
 			}
 
 			// Convert date to GMT since that is the format in the DB
-			$where_val = get_gmt_from_date( $where_val );
+			if ( strpos( $original_value, 'hour' ) === false ) {
+				$where_val = get_gmt_from_date( $where_val );
+			}
 		}
 	}
 

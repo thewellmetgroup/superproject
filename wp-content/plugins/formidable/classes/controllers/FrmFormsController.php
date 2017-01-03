@@ -56,22 +56,37 @@ class FrmFormsController {
 		$action = empty( $values ) ? FrmAppHelper::get_param( $action, '', 'get', 'sanitize_title' ) : $values[ $action ];
 
 		if ( $action == 'create' ) {
-            return self::create($values);
+			self::create($values);
+			return;
 		} else if ( $action == 'new' ) {
 			$frm_field_selection = FrmField::field_selection();
             $values = FrmFormsHelper::setup_new_vars($values);
             $id = FrmForm::create( $values );
             $form = FrmForm::getOne($id);
 
-            // add default email notification
-            $action_control = FrmFormActionsController::get_form_actions( 'email' );
-            $action_control->create($form->id);
+			self::create_default_email_action( $form );
 
 			$all_templates = FrmForm::getAll( array( 'is_template' => 1 ), 'name' );
 
             $values['id'] = $id;
 			require( FrmAppHelper::plugin_path() . '/classes/views/frm-forms/new.php' );
         }
+    }
+
+	/**
+	 * Create the default email action
+	 *
+	 * @since 2.02.11
+	 *
+	 * @param object $form
+	 */
+    private static function create_default_email_action( $form ) {
+    	$create_email = apply_filters( 'frm_create_default_email_action', true, $form );
+
+	    if ( $create_email ) {
+		    $action_control = FrmFormActionsController::get_form_actions( 'email' );
+		    $action_control->create( $form->id );
+	    }
     }
 
 	public static function create( $values = array() ) {
@@ -1046,13 +1061,8 @@ class FrmFormsController {
             $id = $key;
         }
 
-        // no form id or key set
-        if ( empty( $id ) ) {
-            return __( 'Please select a valid form', 'formidable' );
-        }
-
-        $form = FrmForm::getOne( $id );
-        if ( ! $form || $form->parent_form_id || $form->status == 'trash' ) {
+        $form = self::maybe_get_form_to_show( $id );
+        if ( ! $form ) {
             return __( 'Please select a valid form', 'formidable' );
         }
 
@@ -1083,6 +1093,19 @@ class FrmFormsController {
 
 		return $form;
     }
+
+	private static function maybe_get_form_to_show( $id ) {
+		$form = false;
+
+		if ( ! empty( $id ) ) { // no form id or key set
+			$form = FrmForm::getOne( $id );
+			if ( ! $form || $form->parent_form_id || $form->status == 'trash' ) {
+				$form = false;
+			}
+		}
+
+		return $form;
+	}
 
 	private static function is_viewable_draft_form( $form ) {
 		global $post;
@@ -1155,7 +1178,7 @@ class FrmFormsController {
         }
 
         $values = FrmEntriesHelper::setup_new_vars($fields, $form, true);
-        $created = ( isset( $frm_vars['created_entries'] ) && isset( $frm_vars['created_entries'][ $form->id ] ) ) ? $frm_vars['created_entries'][ $form->id ]['entry_id'] : 0;
+        $created = self::just_created_entry( $form->id );
         $conf_method = apply_filters('frm_success_filter', 'message', $form, $form->options, 'create');
 
         if ( $created && is_numeric($created) && $conf_method != 'message' ) {
@@ -1169,7 +1192,7 @@ class FrmFormsController {
             $class = 'frm_message';
         } else {
             $message = $frm_settings->failed_msg;
-            $class = 'frm_error_style';
+            $class = FrmFormsHelper::form_error_class();
         }
 
 		$message = FrmFormsHelper::get_success_message( array(
@@ -1191,11 +1214,19 @@ class FrmFormsController {
 		do_action( 'frm_after_entry_processed', array( 'entry_id' => $created, 'form' => $form ) );
     }
 
+	/**
+	 * @since 2.2.7
+	 */
+	public static function just_created_entry( $form_id ) {
+		global $frm_vars;
+		return ( isset( $frm_vars['created_entries'] ) && isset( $frm_vars['created_entries'][ $form_id ] ) && isset( $frm_vars['created_entries'][ $form_id ]['entry_id'] ) ) ? $frm_vars['created_entries'][ $form_id ]['entry_id'] : 0;
+	}
+
 	public static function front_head() {
 		$version = FrmAppHelper::plugin_version();
 		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 		wp_register_script( 'formidable', FrmAppHelper::plugin_url() . "/js/formidable{$suffix}.js", array( 'jquery' ), $version, true );
-		wp_register_script( 'jquery-placeholder', FrmAppHelper::plugin_url() . '/js/jquery/jquery.placeholder.js', array( 'jquery' ), '2.0.7', true );
+		wp_register_script( 'jquery-placeholder', FrmAppHelper::plugin_url() . '/js/jquery/jquery.placeholder.min.js', array( 'jquery' ), '2.3.1', true );
 		add_filter( 'script_loader_tag', 'FrmFormsController::defer_script_loading', 10, 2 );
 
 		if ( FrmAppHelper::is_admin() ) {

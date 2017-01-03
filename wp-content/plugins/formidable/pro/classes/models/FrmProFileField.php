@@ -2,6 +2,10 @@
 
 class FrmProFileField {
 
+	/**
+	 * @param array $field (no array for field options)
+	 * @param array $atts
+	 */
 	public static function setup_dropzone( $field, $atts ) {
 		global $frm_vars;
 
@@ -22,7 +26,7 @@ class FrmProFileField {
 			$file_size = self::get_max_file_size( $field['size'] );
 
 			$frm_vars['dropzone_loaded'][ $the_id ] = array(
-				'maxFilesize' => round( $file_size ),
+				'maxFilesize' => round( $file_size, 2 ),
 				'maxFiles'    => $max,
 				//'acceptedFiles' => '', //cover this in the php to minimize differences in mime types
 				'htmlID'      => $the_id,
@@ -31,10 +35,16 @@ class FrmProFileField {
 				'formID'      => $field['form_id'],
 				'fieldName'   => $atts['field_name'],
 				'mockFiles'   => array(),
-				'cancel'      => __( 'Cancel upload', 'formidable' ),
-				'cancelConfirm' => __( 'Are you sure you want to cancel this upload?', 'formidable' ),
-				'remove'      => __( 'Remove file', 'formidable' ),
-				'maxFilesExceeded' => __( 'You can not upload any more files.', 'formidable' ),
+				'defaultMessage' => __( 'Drop files here to upload', 'formidable' ),
+				'fallbackMessage' => __( 'Your browser does not support drag and drop file uploads.', 'formidable' ),
+				'fallbackText' => __( 'Please use the fallback form below to upload your files like in the olden days.', 'formidable' ),
+				'fileTooBig' => sprintf( __( 'That file is too big. It must be less than %sMB.', 'formidable' ), '{{maxFilesize}}' ),
+				'invalidFileType'  => self::get_invalid_file_type_message( $field['name'], $field['invalid'] ),
+				'responseError'    => sprintf( __( 'Server responded with %s code.', 'formidable' ), '{{statusCode}}' ),
+				'cancel'           => __( 'Cancel upload', 'formidable' ),
+				'cancelConfirm'    => __( 'Are you sure you want to cancel this upload?', 'formidable' ),
+				'remove'           => __( 'Remove file', 'formidable' ),
+				'maxFilesExceeded' => sprintf( __( 'You have uploaded too many files. You may only include %d file(s).', 'formidable' ), $max ),
 			);
 
 			if ( strpos( $the_id, '-i' ) ) {
@@ -185,7 +195,7 @@ class FrmProFileField {
 
 			// check allowed file size
 			if ( ! empty( $file_uploads['error'] ) && in_array( 1, (array) $file_uploads['error'] ) ) {
-				$errors[ 'field' . $field->temp_id ] = __( 'This file is too big', 'formidable' );
+				$errors[ 'field' . $field->temp_id ] = __( 'That file is too big. It must be less than %sMB.', 'formidable' );
 			}
 
 			if ( empty( $name ) ) {
@@ -196,7 +206,7 @@ class FrmProFileField {
 			$this_file_size = $this_file_size / 1000000; // compare in MB
 
 			if ( $this_file_size > $size_limit ) {
-				$errors[ 'field' . $field->temp_id ] = sprintf( __( 'That file is too big. It must be less than %dMB.', 'formidable' ), $size_limit );
+				$errors[ 'field' . $field->temp_id ] = sprintf( __( 'That file is too big. It must be less than %sMB.', 'formidable' ), $size_limit );
 			}
 
 			unset( $name );
@@ -273,7 +283,7 @@ class FrmProFileField {
 		}
 
         if ( isset( $file_type ) && ! $file_type['ext'] ) {
-            $errors[ 'field' . $field->temp_id ] = self::get_invalid_file_type_message( $field );
+            $errors[ 'field' . $field->temp_id ] = self::get_invalid_file_type_message( $field->name, $field->field_options['invalid'] );
         }
 	}
 
@@ -286,14 +296,19 @@ class FrmProFileField {
 		return $mimes;
 	}
 
-	private static function get_invalid_file_type_message( $field ) {
+	/**
+	 * @param string $field_name
+	 * @param string $field_invalid_msg
+	 * @return string
+	 */
+	private static function get_invalid_file_type_message( $field_name, $field_invalid_msg ) {
 		$default_invalid_messages = array( '' );
 		$default_invalid_messages[] = __( 'This field is invalid', 'formidable' );
-		$default_invalid_messages[] = $field->name . ' ' . __( 'is invalid', 'formidable' );
-		$is_default_message = in_array( $field->field_options['invalid'], $default_invalid_messages );
+		$default_invalid_messages[] = $field_name . ' ' . __( 'is invalid', 'formidable' );
+		$is_default_message = in_array( $field_invalid_msg, $default_invalid_messages );
 
 		$invalid_type = __( 'Sorry, this file type is not permitted.', 'formidable' );
-		$invalid_message = $is_default_message ? $invalid_type : $field->field_options['invalid'];
+		$invalid_message = $is_default_message ? $invalid_type : $field_invalid_msg;
 
 		return $invalid_message;
 	}
@@ -308,17 +323,15 @@ class FrmProFileField {
      * @return array|string $meta_value
      *
      */
-	public static function prepare_data_before_db( $meta_value, $field_id, $entry_id ) {
+	public static function prepare_data_before_db( $meta_value, $field_id, $entry_id, $atts ) {
 		// If confirmation field or 0 index, exit now
-		if ( ! is_numeric( $field_id ) || $field_id === 0 ) {
+		if ( ! $atts['field'] ) {
 			return $meta_value;
 		}
 
-		$field = FrmField::getOne( $field_id );
-
-		if ( $field->type == 'file' ) {
+		if ( $atts['field']->type == 'file' ) {
 			// Upload files and get new meta value for file upload fields
-			$meta_value = self::prepare_file_upload_meta( $meta_value, $field, $entry_id );
+			$meta_value = self::prepare_file_upload_meta( $meta_value, $atts['field'], $entry_id );
 
 			if ( is_array( $meta_value ) ) {
 				$meta_value = array_map( 'intval', array_filter( $meta_value ) );
@@ -459,7 +472,7 @@ class FrmProFileField {
 	 * Prevent attachments from using valuable top-level slug names
 	 */
 	public static function change_attachment_slug( $data ) {
-		$data['post_name'] = 'frm-' . $data['post_name'];
+		$data['post_name'] = sanitize_title( 'frm-' . $data['post_name'] );
 		return $data;
 	}
 

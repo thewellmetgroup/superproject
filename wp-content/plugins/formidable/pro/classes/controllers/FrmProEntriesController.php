@@ -68,6 +68,7 @@ class FrmProEntriesController{
 				$keep_scripts = array(
 					'recaptcha-api', 'jquery-frm-rating', 'jquery-chosen',
 					'google_jsapi', 'dropzone',
+					'jquery-maskedinput',
 					'flashcanvas', 'jquery-signaturepad', 'frm-signature', // Remove these after add-on update
 				);
 				$keep_styles = array( 'dashicons', 'jquery-theme' );
@@ -712,7 +713,8 @@ class FrmProEntriesController{
 		$args['errors'] = self::get_posted_form_errors( $frm_vars, $args['form'] );
 		$field_args = array(
 			'parent_form_id' => $args['form']->id,
-			'fields' => $args['fields']
+			'fields' => $args['fields'],
+			'save_draft_click' => FrmProFormsHelper::saving_draft(),
 		);
 		$args['values'] = self::setup_entry_values_for_editing( $entry, $field_args );
 		$args['submit_text'] = self::get_submit_button_text_for_editing_entry( $entry, $args['values'], $args['form'] );
@@ -748,7 +750,8 @@ class FrmProEntriesController{
 		$entry = FrmEntry::getOne( $entry_id );
 		$field_args = array(
 			'parent_form_id' => $args['form']->id,
-			'fields' => $args['fields']
+			'fields' => $args['fields'],
+			'save_draft_click' => true,
 		);
 		$args['values'] = self::setup_entry_values_for_editing( $entry, $field_args );
 		$args['submit_text'] = self::get_submit_button_text_for_editing_entry( $entry, $args['values'], $args['form'] );
@@ -877,7 +880,7 @@ class FrmProEntriesController{
 	 *
 	 * @param object $entry
 	 * @param array $args (always contains 'parent_form_id' and 'fields'; if repeating, will contain 'parent_field_id',
-	 *     'key_pointer' and 'repeating')
+	 *     'key_pointer' and 'repeating'; if embedded, will contain in_embed_form)
 	 * @return array $values
 	 */
 	public static function setup_entry_values_for_editing( $entry, $args ) {
@@ -1383,6 +1386,7 @@ class FrmProEntriesController{
 			$atts['truncate'] = false;
 			$atts['html'] = true;
 		}
+
 		return $atts;
 	}
 
@@ -2326,7 +2330,7 @@ class FrmProEntriesController{
 		$link .= '<span class="frm_edit_link_container">';
 		$link .= '<a href="#" class="frm_inplace_edit frm_edit_link ' . esc_attr( $atts['class'] ) . '" id="' . esc_attr( $atts['html_id'] ) . '" title="' . esc_attr( $atts['title'] ) . '"';
 		foreach ( $data as $name => $label ) {
-			$link .= ' data-' . sanitize_title( $name ) . '="' . esc_attr( $label ) .'"';
+            $link .= ' data-' . str_replace( '_', '', sanitize_title( $name ) ) . '="' . esc_attr( $label ) .'"';
 		}
 		$link .= '>' . wp_kses_post( $atts['label'] ) . "</a>\n";
 		$link .= '</span>';
@@ -2490,16 +2494,17 @@ class FrmProEntriesController{
 		$atts['type'] = $field->type;
 		$atts['post_id'] = $entry->post_id;
 		$atts['entry_id'] = $entry->id;
-		if ( ! isset($atts['show_filename']) ) {
-			$atts['show_filename'] = false;
-		}
 
-		if ( $field->type == 'file' && ! isset( $atts['html'] ) ) {
-			// default to show the image instead of the url
-			$atts['html'] = 1;
-		}
+		self::add_frm_field_value_atts_for_file_upload_field( $field, $atts );
 
-		if ( ! empty( $atts['format'] ) || ( isset($atts['show']) && ! empty($atts['show']) ) ) {
+		$tested_field_types = array( 'time', 'file' );
+
+		if ( in_array( $field->type, $tested_field_types ) || ! empty( $atts['format'] ) || ( isset($atts['show']) && ! empty($atts['show']) ) ) {
+
+			if ( empty( $atts['format'] ) ) {
+				unset( $atts['format'] );
+			}
+			
 			$value = FrmFieldsHelper::get_display_value($value, $field, $atts);
 		} else {
 			$value = FrmEntriesHelper::display_value( $value, $field, $atts);
@@ -2510,6 +2515,40 @@ class FrmProEntriesController{
 		}
 
 		return $value;
+    }
+
+	/**
+	 * Add some default attributes for a file upload field in the frm-field-value shortcode
+	 *
+	 * @since 2.02.11
+	 *
+	 * @param object $field
+	 * @param array $atts
+	 */
+    private static function add_frm_field_value_atts_for_file_upload_field( $field, &$atts ) {
+	    if ( $field->type != 'file' ) {
+	    	return;
+	    }
+
+	    if ( ! isset( $atts['show_filename'] ) ) {
+		    $atts['show_filename'] = false;
+	    }
+
+	    if ( ! isset( $atts['size'] ) ) {
+		    $atts['size'] = 'thumbnail';
+	    }
+
+	    // Show the image by default, for reverse compatibility
+	    if ( ! isset( $atts['html'] ) ) {
+
+	    	if ( ! isset( $atts['show_image'] ) ) {
+			    $atts['show_image'] = 1;
+		    }
+
+		    if ( ! isset( $atts['add_link'] ) ) {
+			    $atts['add_link'] = 1;
+		    }
+	    }
     }
 
 	/**
@@ -2679,9 +2718,9 @@ class FrmProEntriesController{
             }
 			$response['errors'] = $obj;
 
-			$frm_settings = FrmAppHelper::get_settings();
+			$invalid_msg = FrmFormsHelper::get_invalid_error_message( array( 'form' => $form ) );
 			$response['error_message'] = FrmFormsHelper::get_success_message( array(
-				'message' => $frm_settings->invalid_msg, 'form' => $form,
+				'message' => $invalid_msg, 'form' => $form,
 				'entry_id' => 0, 'class' => 'frm_error_style',
 			) );
         }

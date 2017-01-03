@@ -7,7 +7,7 @@ if ( isset( $message ) && $message != '' ) {
     if ( FrmAppHelper::is_admin() ) {
 		?><div id="message" class="frm_message updated frm_msg_padding"><?php echo wp_kses_post( $message ) ?></div><?php
 	} else {
-        FrmFormsHelper::get_scroll_js($form->id);
+		FrmFormsHelper::maybe_get_scroll_js( $form->id );
 
 		// we need to allow scripts here for javascript in the success message
 		echo $message;
@@ -19,7 +19,7 @@ if ( isset($errors) && is_array( $errors ) && ! empty( $errors ) ) {
 	if ( isset( $form ) && is_object( $form ) ) {
     	FrmFormsHelper::get_scroll_js( $form->id );
 	} ?>
-<div class="frm_error_style">
+<div class="<?php echo esc_attr( FrmFormsHelper::form_error_class() ) ?>">
 <?php
 $img = '';
 if ( ! FrmAppHelper::is_admin() ) {
@@ -30,7 +30,7 @@ if ( ! FrmAppHelper::is_admin() ) {
     }
 }
 
-FrmFormsHelper::show_errors( compact( 'img', 'errors' ) );
+FrmFormsHelper::show_errors( compact( 'img', 'errors', 'form' ) );
 
 ?>
 </div>

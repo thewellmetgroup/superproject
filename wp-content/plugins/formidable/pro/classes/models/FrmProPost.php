@@ -306,21 +306,34 @@ class FrmProPost {
 							continue;
 						}
 
-						$term = get_term($val, $fields[$taxonomy['field_id']]->field_options['taxonomy']);
-
-						if ( $term && ! isset($term->errors) ) {
-							$new_value[$val] = $term->name;
-						} else {
-							$new_value[$val] = $val;
-						}
-
-						unset($term);
+						$new_value[ $val ] = self::get_taxonomy_term_name_from_id( $val, $fields[$taxonomy['field_id']]->field_options['taxonomy'] );
 					}
 
 					self::fill_taxonomies($new_post['taxonomies'], $tax_type, $new_value);
 				}
 			}
 		}
+	}
+
+	/**
+	 * Get the taxonomy name from the ID
+	 * If no term is retrieved, the ID will be returned
+	 *
+	 * @since 2.02.06
+	 * @param int|string $term_id
+	 * @param string $taxonomy
+	 * @return string
+	 */
+	public static function get_taxonomy_term_name_from_id( $term_id, $taxonomy ) {
+		$term = get_term( $term_id, $taxonomy );
+
+		if ( $term && ! isset( $term->errors ) ) {
+			$value = $term->name;
+		} else {
+			$value = $term_id;
+		}
+
+		return $value;
 	}
 
 	private static function populate_from_custom_code( &$new_post ) {
@@ -382,9 +395,9 @@ class FrmProPost {
 			}
         }
 
-        if ( isset($post['post_date']) && ! empty($post['post_date']) && ( ! isset($post['post_date_gmt']) || $post['post_date_gmt'] == '0000-00-00 00:00:00' ) ) {
-            // set post date gmt if post date is set
-            $post['post_date_gmt'] = get_gmt_from_date($post['post_date']);
+		if ( isset( $post['post_date'] ) && ! empty( $post['post_date'] ) ) {
+			// set post date gmt if post date is set
+			$post['post_date_gmt'] = get_gmt_from_date( $post['post_date'] );
 		}
     }
 	
@@ -515,19 +528,8 @@ class FrmProPost {
 		global $wpdb;
 
 		$field_ids = array();
-		foreach ( $action->post_content as $name => $value ) {
-			// Don't try to delete meta for the display ID since this is never a field ID
-			if ( $name == 'display_id' ) {
-				continue;
-			}
-
-			if ( is_numeric($value) ) {
-				$field_ids[] = $value;
-			} else if ( is_array( $value ) && isset( $value['field_id'] ) && is_numeric( $value['field_id'] ) ) {
-				$field_ids[] = $value['field_id'];
-			}
-			unset($name, $value);
-		}
+		self::filter_post_settings( $action->post_content );
+		self::get_post_field_ids_from_settings( $action->post_content, $field_ids );
 
 		if ( ! empty($field_ids) ) {
 			$where = array( 'item_id' => $entry->id, 'field_id' => $field_ids );
@@ -535,5 +537,209 @@ class FrmProPost {
 
 			$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $wpdb->prefix . 'frm_item_metas' . $where['where'], $where['values'] ) );
 		}
+	}
+
+	/**
+	 * Don't try to delete meta for non-post field settings
+	 * @since 2.2.11
+	 */
+	private static function filter_post_settings( $settings ) {
+		$filtered = $settings;
+		foreach ( $settings as $name => $value ) {
+			if ( strpos( $name, 'post' ) !== 0 ) {
+				unset( $filtered[ $name ] );
+			}
+		}
+		$settings = $filtered;
+	}
+
+	/**
+	 * @since 2.2.11
+	 */
+	private static function get_post_field_ids_from_settings( $settings, &$field_ids ) {
+		foreach ( $settings as $name => $value ) {
+
+			if ( is_numeric( $value ) ) {
+				$field_ids[] = $value;
+			} else if ( is_array( $value ) ) {
+				if ( isset( $value['field_id'] ) && is_numeric( $value['field_id'] ) ) {
+					$field_ids[] = $value['field_id'];
+				} else {
+					self::get_post_field_ids_from_settings( $value, $field_ids );
+				}
+			}
+			unset( $name, $value );
+		}
+	}
+
+	/**
+	 * Get a category dropdown (for form builder, logic, or front-end)
+	 *
+	 * @since 2.02.07
+	 * @param array (not multi-dimensional) $field
+	 * @param array $args - must include 'name', 'id', and 'location'
+	 * @return string
+	 */
+	public static function get_category_dropdown( $field, $args ) {
+		if ( ! $field || ! isset( $args['location'] ) ) {
+			return '';
+		}
+
+		$category_args = self::get_category_args( $field, $args );
+
+		if ( empty( $category_args ) ) {
+			return '';
+		}
+
+		$dropdown = wp_dropdown_categories( $category_args );
+
+		if ( 'front' == $args['location'] ) {
+			self::format_category_dropdown_for_front_end( $field, $args, $dropdown );
+		} else if ( 'form_builder' == $args['location'] ) {
+			self::format_category_dropdown_for_form_builder( $field, $args, $dropdown );
+		} else if ( 'form_actions' == $args['location'] || 'field_logic' == $args['location'] ) {
+			self::format_category_dropdown_for_logic( $args, $dropdown );
+		}
+
+		return $dropdown;
+	}
+
+	/**
+	 * Format a category dropdown for a front-end form
+	 *
+	 * @since 2.02.07
+	 * @param array $field
+	 * @param array $args - must include placeholder_class, name, and id
+	 * @param string $dropdown
+	 */
+	private static function format_category_dropdown_for_front_end( $field, $args, &$dropdown ) {
+		// Add input HTML
+		$add_html = FrmFieldsController::input_html( $field, false ) . FrmProFieldsController::input_html( $field, false );
+		$dropdown = str_replace( " class='placeholder_class'", $add_html, $dropdown );
+
+		// Set up hidden fields for read-only dropdown
+		if ( FrmField::is_read_only( $field ) ) {
+			$hidden_fields = FrmProDropdownFieldsController::get_hidden_fields_with_readonly_values( $field, $args['name'], $args['id'] );
+
+			$dropdown = str_replace( "name='" . $args['name'] . "'", "", $dropdown );
+			$dropdown = str_replace( "id='" . $args['id'] . "'", "", $dropdown );
+			$dropdown = $hidden_fields . $dropdown;
+		}
+
+		self::select_saved_values_in_category_dropdown( $field, $dropdown );
+	}
+
+	/**
+	 * Format a category dropdown form the form builder page
+	 *
+	 * @since 2.02.07
+	 * @param array $field
+	 * @param array $args - must include placeholder_class and id
+	 * @param string $dropdown
+	 */
+	private static function format_category_dropdown_for_form_builder( $field, $args, &$dropdown ) {
+		// Remove placeholder class
+		$dropdown = str_replace( " class='placeholder_class'", '', $dropdown );
+
+		// Remove id
+		$dropdown = str_replace( "id='" . $args['id'] . "'", "", $dropdown );
+
+		self::select_saved_values_in_category_dropdown( $field, $dropdown );
+	}
+
+	/**
+	 * Format a category dropdown for logic (in field or action)
+	 *
+	 * @since 2.02.07
+	 * @param array $args - must include id and placeholder_class
+	 * @param string $dropdown
+	 */
+	private static function format_category_dropdown_for_logic( $args, &$dropdown ) {
+		// Remove placeholder id
+		$dropdown = str_replace( "id='" . $args['id'] . "'", "", $dropdown );
+
+		// Remove placeholder class
+		$dropdown = str_replace( " class='placeholder_class'", '', $dropdown );
+
+		// Set first value in category dropdown to empty string instead of 0
+		$dropdown = str_replace( "value='0'", 'value=""', $dropdown );
+	}
+
+	/**
+	 * Make sure all saved values are selected, not just the first
+	 * This is necessary because only one value can be passed into the wp_dropdown_categories() function
+	 *
+	 * @since 2.02.07
+	 * @param array $field
+	 * @param string $dropdown
+	 */
+	private static function select_saved_values_in_category_dropdown( $field, &$dropdown ) {
+		if ( is_array( $field['value'] ) ) {
+			$skip = true;
+			foreach ( $field['value'] as $v ) {
+				if ( $skip ) {
+					$skip = false;
+					continue;
+				}
+				$dropdown = str_replace( ' value="' . esc_attr( $v ) . '"', ' value="' . esc_attr( $v ) . '" selected="selected"', $dropdown );
+				unset( $v );
+			}
+		}
+	}
+
+	/**
+	 * Get the arguments that will be passed into the wp_dropdown_categories function
+	 *
+	 * @since 2.02.07
+	 * @param array $field
+	 * @param array $args - must include 'name', 'id', 'location', and 'placeholder_class'
+	 * @return array
+	 */
+	private static function get_category_args( $field, $args ) {
+		$show_option_all = isset( $args['show_option_all'] ) ? $args['show_option_all'] : ' ';
+
+		$exclude = ( is_array( $field['exclude_cat'] ) ) ? implode( ',', $field['exclude_cat'] ) : $field['exclude_cat'];
+		$exclude = apply_filters( 'frm_exclude_cats', $exclude, $field );
+
+		if ( is_array( $field['value'] ) ) {
+			if ( ! empty( $exclude ) ) {
+				$field['value'] = array_diff( $field['value'], explode( ',', $exclude ) );
+			}
+			$selected = reset( $field['value'] );
+		} else {
+			$selected = $field['value'];
+		}
+
+		if ( $args['location'] == 'field_logic' ) {
+			$args['name'] .= '[]';
+		}
+
+		$tax_atts = array(
+			'show_option_all' => $show_option_all,
+			'hierarchical' => 1,
+			'name' => $args['name'],
+			'id' => $args['id'],
+			'exclude' => $exclude,
+			'class' => 'placeholder_class',
+			'selected' => $selected,
+			'hide_empty' => false,
+			'echo' => 0,
+			'orderby' => 'name',
+		);
+
+		$tax_atts = apply_filters( 'frm_dropdown_cat', $tax_atts, $field );
+
+		$post_type = FrmProFormsHelper::post_type( $field['form_id'] );
+		$tax_atts['taxonomy'] = FrmProAppHelper::get_custom_taxonomy( $post_type, $field );
+		if ( ! $tax_atts['taxonomy'] ) {
+			return array();
+		}
+
+		// If field type is dropdown (not Dynamic), exclude children when parent is excluded
+		if ( $field['type'] != 'data' && is_taxonomy_hierarchical( $tax_atts['taxonomy'] ) ) {
+			$tax_atts['exclude_tree'] = $exclude;
+		}
+
+		return $tax_atts;
 	}
 }

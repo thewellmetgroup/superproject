@@ -9,12 +9,6 @@ class FrmNotification {
     }
 
 	public static function trigger_email( $action, $entry, $form ) {
-		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING  ) {
-            return;
-        }
-
-        global $wpdb;
-
         $notification = $action->post_content;
         $email_key = $action->ID;
 
@@ -363,6 +357,16 @@ class FrmNotification {
         $header         = apply_filters('frm_email_header', $header, array(
 			'to_email' => $atts['to_email'], 'subject' => $atts['subject'],
 		) );
+
+		/**
+		 * Stop an email based on the message, subject, recipient,
+		 * or any information included in the email header
+		 * @since 2.2.8
+		 */
+		$continue_sending = apply_filters( 'frm_send_email', true, compact( 'message', 'subject', 'recipient', 'header' ) );
+		if ( ! $continue_sending ) {
+			return;
+		}
 
         if ( apply_filters('frm_encode_subject', 1, $atts['subject'] ) ) {
 			$atts['subject'] = '=?' . $charset . '?B?' . base64_encode( $atts['subject'] ) . '?=';

@@ -22,10 +22,11 @@ select.frm_icon_font{
 }
 
 .frm_icon_font,
-a.frm_icon_font
+a.frm_icon_font,
 .frm_icon_font:hover,
 a.frm_icon_font:hover{
 	text-decoration:none !important;
+	box-shadow:none;
 }
 
 .frm_icon_font:focus,
@@ -38,6 +39,10 @@ a.frm_icon_font:hover{
 .frm_move_icon:active,
 .frm_delete_icon:active{
 	outline:none;
+}
+
+.frm_trigger .frm_icon_font{
+	padding:0 5px;
 }
 
 .ab-icon.frm_dashicon_font:before{

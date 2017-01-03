@@ -10,6 +10,13 @@ class FrmFormsHelper {
 		FrmForm::maybe_get_form( $form );
 	}
 
+	/**
+	 * @since 2.2.10
+	 */
+	public static function form_error_class() {
+		return apply_filters( 'frm_form_error_class', 'frm_error_style' );
+	}
+
 	public static function get_direct_link( $key, $form = false ) {
 		$target_url = esc_url( admin_url( 'admin-ajax.php?action=frm_forms_preview&form=' . $key ) );
         $target_url = apply_filters('frm_direct_link', $target_url, $key, $form);
@@ -119,6 +126,21 @@ class FrmFormsHelper {
         echo ($sort_col == $col && $sort_dir == 'desc') ? ' asc' : ' desc';
     }
 
+	/**
+	 * Get the invalid form error message
+	 *
+	 * @since 2.02.07
+	 * @param array $args
+	 * @return string
+	 */
+	public static function get_invalid_error_message( $args ) {
+		$frm_settings = FrmAppHelper::get_settings();
+
+		$invalid_msg = apply_filters( 'frm_invalid_error_message', $frm_settings->invalid_msg, $args );
+
+		return $invalid_msg;
+	}
+
 	public static function get_success_message( $atts ) {
 		$message = apply_filters( 'frm_content', $atts['message'], $atts['form'], $atts['entry_id'] );
 		$message = FrmAppHelper::use_wpautop( do_shortcode( $message ) );
@@ -157,14 +179,8 @@ class FrmFormsHelper {
 			$values['form_key'] = ( $post_values && isset( $post_values['form_key'] ) ) ? $post_values['form_key'] : FrmAppHelper::get_unique_key( '', $wpdb->prefix . 'frm_forms', 'form_key' );
         }
 
-        $values = self::fill_default_opts($values, false, $post_values);
-
-        if ( $post_values && isset($post_values['options']['custom_style']) ) {
-            $values['custom_style'] = $post_values['options']['custom_style'];
-        } else {
-            $frm_settings = FrmAppHelper::get_settings();
-            $values['custom_style'] = ( $frm_settings->load_style != 'none' );
-        }
+		$values = self::fill_default_opts( $values, false, $post_values );
+		$values['custom_style'] = FrmAppHelper::custom_style_value( $post_values );
 
         return apply_filters('frm_setup_new_form_vars', $values);
     }
@@ -494,11 +510,12 @@ BEFORE_HTML;
 	 * @since 2.0.6
 	 */
 	public static function show_errors( $args ) {
-		$frm_settings = FrmAppHelper::get_settings();
-		if ( empty( $frm_settings->invalid_msg ) ) {
+		$invalid_msg = self::get_invalid_error_message( $args );
+
+		if ( empty( $invalid_msg ) ) {
 			$show_img = false;
 		} else {
-			echo wp_kses_post( $frm_settings->invalid_msg );
+			echo wp_kses_post( $invalid_msg );
 			$show_img = true;
 		}
 
@@ -535,6 +552,13 @@ BEFORE_HTML;
 			if ( ! $line_break_first ) {
 				echo '<br/>';
 			}
+		}
+	}
+
+	public static function maybe_get_scroll_js( $id ) {
+		$offset = apply_filters( 'frm_scroll_offset', 4, array( 'form_id' => $id ) );
+		if ( $offset != -1 ) {
+			self::get_scroll_js( $id );
 		}
 	}
 

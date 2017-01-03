@@ -89,7 +89,7 @@ legend.frm_hidden{
 }
 
 .with_frm_style .frm_section_heading.frm_hide_section{
-	margin-top:0px !important;
+	margin-top:0 !important;
 }
 
 .with_frm_style .frm_hidden_container label.frm_primary_label,
@@ -138,6 +138,10 @@ legend.frm_hidden{
 
 .with_frm_style .wp-editor-container textarea{
     border:none;
+}
+
+.with_frm_style textarea{
+    height:auto;
 }
 
 .with_frm_style .auto_width #loginform input,
@@ -259,6 +263,7 @@ a.frm_save_draft{
     margin-right:5px;
 	width:auto;
 	border:none;
+	vertical-align:baseline;
 }
 
 .with_frm_style :invalid,
@@ -550,6 +555,13 @@ table.frmcal-calendar .frmcal-today .frmcal_date{
     padding:6px 12px;
 }
 
+select.frm_loading_lookup{
+    background-image: url(<?php echo FrmAppHelper::relative_plugin_url() ?>/images/ajax_loader.gif) !important;
+    background-position: 10px;
+    background-repeat: no-repeat;
+    color: transparent !important;
+}
+
 #ui-datepicker-div{
     display:none;
     z-index:999999 !important;
@@ -641,6 +653,7 @@ table.frmcal-calendar .frmcal-today .frmcal_date{
 .frm_form_field.frm_left_container .frm-g-recaptcha,
 .frm_form_field.frm_left_container .g-recaptcha,
 .frm_form_field.frm_left_container .chosen-container,
+.frm_form_field.frm_left_container .frm_combo_inputs_container,
 .frm_form_field.frm_right_container input:not([type=radio]):not([type=checkbox]),
 .frm_form_field.frm_right_container:not(.frm_dynamic_select_container) select,
 .frm_form_field.frm_right_container textarea,
@@ -649,13 +662,24 @@ table.frmcal-calendar .frmcal-today .frmcal_date{
 .frm_form_field.frm_right_container .frm_dropzone,
 .frm_form_field.frm_right_container .frm-g-recaptcha,
 .frm_form_field.frm_right_container .g-recaptcha,
-.frm_form_field.frm_right_container .chosen-container{
+.frm_form_field.frm_right_container .chosen-container,
+.frm_form_field.frm_right_container .frm_combo_inputs_container{
 	max-width:62%;
+}
+
+.frm_form_field.frm_left_container .frm_combo_inputs_container input,
+.frm_form_field.frm_left_container .frm_combo_inputs_container select,
+.frm_form_field.frm_right_container .frm_combo_inputs_container input,
+.frm_form_field.frm_right_container .frm_combo_inputs_container select{
+    max-width:100%;
 }
 
 .frm_form_field.frm_left_container .frm_opt_container,
 .frm_form_field.frm_right_container .frm_opt_container,
 .frm_form_field.frm_inline_container .frm_opt_container,
+.frm_form_field.frm_left_container .frm_combo_inputs_container,
+.frm_form_field.frm_right_container .frm_combo_inputs_container,
+.frm_form_field.frm_inline_container .frm_combo_inputs_container,
 .frm_form_field.frm_left_container .wp-editor-wrap,
 .frm_form_field.frm_right_container .wp-editor-wrap,
 .frm_form_field.frm_inline_container .wp-editor-wrap,
@@ -669,14 +693,6 @@ table.frmcal-calendar .frmcal-today .frmcal_date{
 .frm_form_field.frm_right_container .g-recaptcha,
 .frm_form_field.frm_inline_container .g-recaptcha{
 	display:inline-block;
-}
-
-.frm_left_container p.description,
-.frm_left_container div.description,
-.frm_left_container div.frm_description,
-.frm_left_container .frm_error{
-    margin-left:33%;
-	max-width:62%;
 }
 
 .frm_form_field.frm_left_half.frm_left_container .frm_primary_label,
@@ -961,6 +977,12 @@ table.frmcal-calendar .frmcal-today .frmcal_date{
     margin-right:4%;
 }
 
+.frm_form_field .frm_checkbox,
+.frm_form_field .frm_radio{
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 .frm_form_field.frm_three_col .frm_radio,
 .frm_form_field.frm_three_col .frm_checkbox{
     width:30%;
@@ -1028,9 +1050,9 @@ table.frmcal-calendar .frmcal-today .frmcal_date{
     font-weight:bold;
     -moz-box-shadow:none;
     -webkit-box-shadow:none;
+    width:auto !important;
     box-shadow:none !important;
     display:inline;
-    width:auto !important;
 	-moz-appearance:textfield;
 	padding:0;
 }
@@ -1245,7 +1267,7 @@ html[xmlns] .frm_clearfix{
 }
 
 .with_frm_style .chosen-container-single .chosen-single div b{
-    background:url('<?php echo FrmAppHelper::relative_plugin_url() ?>/pro/images/chosen-sprite.png') no-repeat 0px 2px;
+    background:url('<?php echo FrmAppHelper::relative_plugin_url() ?>/pro/images/chosen-sprite.png') no-repeat 0 2px;
     display:block;
     width:100%;
     height:100%;
@@ -1373,7 +1395,7 @@ html[xmlns] .frm_clearfix{
 
 .with_frm_style .chosen-container-multi .chosen-choices li.search-field input[type="text"]{
     margin:1px 0;
-    padding:0;
+    padding:0 !important;
     height:25px;
     outline:0;
     border:0 !important;

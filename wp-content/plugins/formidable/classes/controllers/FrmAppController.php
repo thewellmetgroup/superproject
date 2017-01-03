@@ -24,36 +24,39 @@ class FrmAppController {
     }
 
 	public static function get_form_nav( $form, $show_nav = false, $title = 'show' ) {
-        global $pagenow, $frm_vars;
-
 		$show_nav = FrmAppHelper::get_param( 'show_nav', $show_nav, 'get', 'absint' );
-        if ( empty( $show_nav ) ) {
+        if ( empty( $show_nav ) || ! $form ) {
             return;
         }
 
-		$current_page = isset( $_GET['page'] ) ? FrmAppHelper::simple_get( 'page', 'sanitize_title' ) : FrmAppHelper::simple_get( 'post_type', 'sanitize_title', 'None' );
+		FrmForm::maybe_get_form( $form );
+		if ( ! is_object( $form ) ) {
+			return;
+		}
+
+		$id = $form->id;
+		$current_page = self::get_current_page();
+		$nav_items = self::get_form_nav_items( $form );
+
+		include( FrmAppHelper::plugin_path() . '/classes/views/shared/form-nav.php' );
+	}
+
+	private static function get_current_page() {
+		global $pagenow;
+
+		$page = FrmAppHelper::simple_get( 'page', 'sanitize_title' );
+		$post_type = FrmAppHelper::simple_get( 'post_type', 'sanitize_title', 'None' );
+		$current_page = isset( $_GET['page'] ) ? $page : $post_type;
 		if ( $pagenow == 'post.php' || $pagenow == 'post-new.php' ) {
 			$current_page = 'frm_display';
 		}
 
-        if ( $form ) {
-			FrmForm::maybe_get_form( $form );
+		return $current_page;
+	}
 
-            if ( is_object( $form ) ) {
-                $id = $form->id;
-            }
-        }
+	private static function get_form_nav_items( $form ) {
+		$id = $form->parent_form_id ? $form->parent_form_id : $form->id;
 
-        if ( ! isset( $id ) ) {
-            $form = $id = false;
-        }
-
-		$nav_items = self::get_form_nav_items( $id );
-
-        include( FrmAppHelper::plugin_path() . '/classes/views/shared/form-nav.php' );
-    }
-
-	private static function get_form_nav_items( $id ) {
 		$nav_items = array(
 			array(
 				'link'    => admin_url( 'admin.php?page=formidable&frm_action=edit&id=' . absint( $id ) ),
@@ -78,7 +81,7 @@ class FrmAppController {
 			),
 		);
 
-		$nav_items = apply_filters( 'frm_form_nav_list', $nav_items, array( 'form_id' => $id ) );
+		$nav_items = apply_filters( 'frm_form_nav_list', $nav_items, array( 'form_id' => $id, 'form' => $form ) );
 		return $nav_items;
 	}
 

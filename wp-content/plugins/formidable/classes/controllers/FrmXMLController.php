@@ -50,7 +50,6 @@ class FrmXMLController {
 
     public static function form( $errors = array(), $message = '' ) {
 		$where = array(
-			'parent_form_id' => array( null, 0 ),
 			'status' => array( null, '', 'published' ),
 		);
 		$forms = FrmForm::getAll( $where, 'name' );
@@ -156,16 +155,7 @@ class FrmXMLController {
 	public static function generate_xml( $type, $args = array() ) {
     	global $wpdb;
 
-	    $type = (array) $type;
-        if ( in_array( 'items', $type) && ! in_array( 'forms', $type) ) {
-            // make sure the form is included if there are entries
-            $type[] = 'forms';
-        }
-
-	    if ( in_array( 'forms', $type) ) {
-            // include actions with forms
-	        $type[] = 'actions';
-	    }
+	    self::prepare_types_array( $type );
 
 	    $tables = array(
 			'items'     => $wpdb->prefix . 'frm_items',
@@ -228,13 +218,19 @@ class FrmXMLController {
                 break;
                 case 'styles':
                     // Loop through all exported forms and get their selected style IDs
+					$frm_style = new FrmStyle();
+					$default_style = $frm_style->get_default_style();
                     $form_ids = $args['ids'];
                     $style_ids = array();
                     foreach ( $form_ids as $form_id ) {
                         $form_data = FrmForm::getOne( $form_id );
                         // For forms that have not been updated while running 2.0, check if custom_style is set
                         if ( isset( $form_data->options['custom_style'] ) ) {
-                            $style_ids[] = $form_data->options['custom_style'];
+							if ( $form_data->options['custom_style'] == 1 ) {
+								$style_ids[] = $default_style->ID;
+							} else {
+								$style_ids[] = $form_data->options['custom_style'];
+							}
                         }
                         unset( $form_id, $form_data );
                     }
@@ -267,6 +263,18 @@ class FrmXMLController {
 		include( FrmAppHelper::plugin_path() . '/classes/views/xml/xml.php' );
     }
 
+	private static function prepare_types_array( &$type ) {
+		$type = (array) $type;
+		if ( ! in_array( 'forms', $type ) && ( in_array( 'items', $type ) || in_array( 'posts', $type ) ) ) {
+			// make sure the form is included if there are entries
+			$type[] = 'forms';
+		}
+
+		if ( in_array( 'forms', $type ) ) {
+			// include actions with forms
+			$type[] = 'actions';
+		}
+	}
 
 	public static function generate_csv( $atts ) {
 		$form_ids = $atts['ids'];
@@ -289,12 +297,10 @@ class FrmXMLController {
 			$fid = FrmAppHelper::get_param( 'fid', '', 'get', 'sanitize_text_field' );
 		}
 
-		if ( ! ini_get('safe_mode') ) {
-			set_time_limit(0); //Remove time limit to execute this function
-			$mem_limit = str_replace('M', '', ini_get('memory_limit'));
-			if ( (int) $mem_limit < 256 ) {
-				ini_set('memory_limit', '256M');
-			}
+		set_time_limit(0); //Remove time limit to execute this function
+		$mem_limit = str_replace('M', '', ini_get('memory_limit'));
+		if ( (int) $mem_limit < 256 ) {
+			ini_set('memory_limit', '256M');
 		}
 
 		global $wpdb;

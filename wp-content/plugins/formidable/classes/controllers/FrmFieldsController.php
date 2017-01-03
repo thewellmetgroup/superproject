@@ -491,11 +491,11 @@ class FrmFieldsController {
             $type = $type_switch[ $type ];
         }
 
-		$frm_field_selection = FrmField::field_selection();
-        $types = array_keys($frm_field_selection);
-        if ( ! in_array($type, $types) && $type != 'captcha' ) {
-            $type = 'text';
-        }
+		$pro_fields = FrmField::pro_field_selection();
+		$types = array_keys( $pro_fields );
+		if ( in_array( $type, $types ) ) {
+			$type = 'text';
+		}
 
         return $type;
     }
@@ -563,12 +563,6 @@ class FrmFieldsController {
 
         if ( $field['type'] == 'hidden' || $field['type'] == 'user_id' ) {
             return;
-        }
-
-        global $frm_vars;
-		if ( is_admin() && ! FrmAppHelper::is_preview_page() && ! in_array( $field['type'], array( 'scale', 'radio', 'checkbox', 'data', 'lookup' ) ) ) {
-			// Add the dyn_default_value class to some field inputs on form builder page
-            $class[] = 'dyn_default_value';
         }
 
         if ( isset($field['size']) && $field['size'] > 0 ) {
@@ -680,13 +674,6 @@ class FrmFieldsController {
 		if ( ! FrmField::is_option_empty( $field, 'invalid' ) ) {
 			$invalid_message = FrmFieldsHelper::get_error_msg( $field, 'invalid' );
 			$add_html['data-invmsg'] = 'data-invmsg="' . esc_attr( $invalid_message ) . '"';
-		}
-
-		if ( $field['type'] == 'tel' ) {
-			$format = FrmEntryValidate::phone_format( $field );
-			$format = substr( $format, 2, -1 );
-			$key = 'pattern';
-			$add_html[ $key ] = $key . '="' . esc_attr( $format ) . '"';
 		}
 	}
 

@@ -104,7 +104,13 @@ class FrmEntriesHelper {
 			self::get_posted_value( $field, $new_value, $args );
 		} else if ( FrmField::is_option_true( $field, 'clear_on_focus' ) ) {
 			// If clear on focus is selected, the value should be blank (unless it was posted, of course)
-			$new_value = '';
+
+			// TODO: move to Pro
+			if ( 'address' == $field->type && isset( $new_value['country'] ) ) {
+				$new_value = array( 'country' => $new_value['country'] );
+			} else {
+				$new_value = '';
+			}
 		}
 
 		if ( ! is_array( $new_value ) ) {
@@ -183,8 +189,8 @@ class FrmEntriesHelper {
         preg_match_all("/\[(default-message|default_message)\b(.*?)(?:(\/))?\]/s", $message, $shortcodes, PREG_PATTERN_ORDER);
 
         foreach ( $shortcodes[0] as $short_key => $tag ) {
-            $add_atts = shortcode_parse_atts( $shortcodes[2][ $short_key ] );
-            if ( $add_atts ) {
+			$add_atts = FrmShortcodeHelper::get_shortcode_attribute_array( $shortcodes[2][ $short_key ] );
+			if ( ! empty( $add_atts ) ) {
                 $this_atts = array_merge($atts, $add_atts);
             } else {
                 $this_atts = $atts;
@@ -472,7 +478,7 @@ class FrmEntriesHelper {
 
 			if ( is_array($val) ) {
 				$val = FrmAppHelper::array_flatten( $val );
-			    $val = implode(',', $val);
+				$val = implode( ', ', $val );
 			}
 
 			$content .= $val;

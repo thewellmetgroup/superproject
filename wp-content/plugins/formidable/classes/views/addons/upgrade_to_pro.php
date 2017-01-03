@@ -1,55 +1,56 @@
 <div class="wrap upgrade_to_pro">
-	<h1 class="frm_pro_heading">Save time and make life easier. Upgrade to Pro.</h1>
-	<img src="<?php echo esc_url( FrmAppHelper::plugin_url() ) ?>/images/logo.png" alt="Upgrade to Pro" />
+	<h1 class="frm_pro_heading">
+		<img src="<?php echo esc_url( FrmAppHelper::plugin_url() ) ?>/images/logo.png" alt="Upgrade to Pro" />
+		<span class="alignright">Save time and make life easier. Upgrade to Pro.</span>
+		<span class="clear"></span>
+	</h1>
 
 	<div class="clear"></div>
 
 	<p>Enhance your basic Formidable forms with a plethora of Pro field types and features. Create advanced forms and data-driven applications in no time at all.</p>
 	<p>Are you collecting data offline? Streamline your business by using your forms to get online. Whether you need surveys, polls, client contracts, mortgage calculators, or directories, we've got you covered. Save time by allowing clients to return and make changes to their own submissions, or let them contribute content to your site. Generate more leads by adding headings and page breaks, only showing the fields you need, and letting your clients repeat a section of fields as many times as they need.</p>
-	<p>Projects that once seemed impossible are within your reach with Pro. That project you’ve been dreaming of pursuing? Chances are <strong>Formidable Pro can handle it</strong>.</p>
+	<p>Projects that once seemed impossible are within your reach with Pro. That project you’ve been dreaming of pursuing? Chances are <strong>Formidable Pro can handle it</strong>.</p><br/>
 
 	<table class="wp-list-table widefat fixed striped frm_pricing">
 		<thead>
 			<tr>
 				<th></th>
-			<?php foreach ( $pro['pricing'] as $name => $price ) {
-				$price_id++;
-				if ( $name == 'smallbusiness' ) {
-					$name = 'Small Business';
-				} ?>
+			<?php foreach ( $pro_pricing as $price_info ) { ?>
 				<th>
-					<h3><?php echo esc_attr( ucfirst( $name ) ) ?></h3>
-					<h4>$<?php echo esc_attr( $price ) ?></h4>
-					<a href="<?php echo esc_url( FrmAppHelper::make_affiliate_url( 'https://formidablepro.com/checkout?edd_action=add_to_cart&download_id=93790' ) ) ?>&amp;edd_options[price_id]=<?php echo absint( $price_id ) ?>" class="button-primary" target="_blank"><?php _e( 'Get Started', 'formidable' ) ?></a>
+					<h3><?php echo esc_attr( ucfirst( $price_info['name'] ) ) ?></h3>
+					<h4>$<?php echo esc_attr( $price_info['price'] ) ?></h4>
+					<a href="<?php echo esc_url( FrmAppHelper::make_affiliate_url( 'https://formidablepro.com/checkout?edd_action=add_to_cart&download_id=93790' ) ) ?>&amp;edd_options[price_id]=<?php echo absint( $price_info['id'] ) ?>" class="button-primary" target="_blank">
+						<?php _e( 'Get Started', 'formidable' ) ?>
+					</a>
 				</th>
 			<?php } ?>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
-				<th>Knowledge Base Support For # Sites</th>
+				<th>Number of Sites</th>
 				<td>1 Site</td>
-				<td>1 Site + 1 Staging Site</td>
+				<td>3 Sites</td>
 				<td>15 Sites</td>
-				<td>200 Sites</td>
-			</tr>
-			<tr>
-				<th>Product Updates Forever</th>
-				<td>Manual</td>
-				<td>Manual</td>
-				<td>Manual</td>
-				<td>Automatic</td>
+				<td>Unlimited Sites</td>
 			</tr>
 			<tr>
 				<th>Automatic Updates</th>
 				<td>1 Year</td>
 				<td>1 Year</td>
-				<td>2 Years</td>
+				<td>1 Year</td>
 				<td>Lifetime</td>
 			</tr>
 			<tr>
-				<th>1 Year of Ticket Support</th>
-				<td>None</td>
+				<th>Support Term</th>
+				<td>1 Year</td>
+				<td>1 Year</td>
+				<td>1 Year</td>
+				<td>1 Year</td>
+			</tr>
+			<tr>
+				<th>Support Priority</th>
+				<td>Standard Support</td>
 				<td>Standard Support</td>
 				<td>Priority Support</td>
 				<td>Elite Support</td>
@@ -57,13 +58,15 @@
 			<tr>
 				<th>Included AddOns</th>
 				<td>None</td>
-				<td><a href="<?php echo esc_url( FrmAppHelper::make_affiliate_url('https://formidablepro.com/pricing/#addon-lists') ) ?>" target="_blank">Basic Addons</a></td>
+				<td><a href="<?php echo esc_url( FrmAppHelper::make_affiliate_url('https://formidablepro.com/pricing/#addon-lists') ) ?>" target="_blank">Premium Addons</a></td>
 				<td><a href="<?php echo esc_url( FrmAppHelper::make_affiliate_url('https://formidablepro.com/pricing/#addon-lists') ) ?>" target="_blank">Advanced Addons</a></td>
 				<td><a href="<?php echo esc_url( FrmAppHelper::make_affiliate_url('https://formidablepro.com/pricing/#addon-lists') ) ?>" target="_blank">Enterprise Addons</a></td>
 			</tr>
 		</tbody>
 	</table>
 	<br/>
+
+	<?php do_action( 'frm_upgrade_page' ); ?>
 
 	<h2>Features</h2>
 	<table class="wp-list-table widefat fixed striped">
