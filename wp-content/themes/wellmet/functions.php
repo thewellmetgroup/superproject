@@ -252,9 +252,8 @@ function wellmet_login_logo() { ?>
         #login h1 a, .login h1 a {
             background-image: url(<?php echo get_stylesheet_directory_uri(); ?>/dist/images/wellmet-logo.png) !important;
             padding-bottom: 30px !important;
-            background-size:150px !important;
-            height:150px !important;
-            width:150px !important;
+            background-size:400px !important;
+            width:400px !important;
         }
     </style>
 <?php }
