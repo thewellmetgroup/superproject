@@ -45,7 +45,7 @@ endif; ?>
             <div class="col-sm-4 cr_cta_sec_item cr_cta_sec_item_3">
                 <div class="cr_cta_sec_item_inner">
                     <i class="icon icon_team-women"></i>
-                    <h2 class="headline"><?php _e('About The <br>WellMet Group','sage'); ?></h2>
+                    <h2 class="headline"><?php _e('About WellMet Philanthropy','sage'); ?></h2>
                     <a href="/about-us/" class="cr_btn callout"><?php _e('Learn more','sage'); ?></a>
                 </div>
             </div>
