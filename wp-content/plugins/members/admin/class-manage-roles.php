@@ -4,24 +4,26 @@
  *
  * @package    Members
  * @subpackage Admin
- * @author     Justin Tadlock <justin@justintadlock.com>
- * @copyright  Copyright (c) 2009 - 2016, Justin Tadlock
- * @link       http://themehybrid.com/plugins/members
+ * @author     Justin Tadlock <justintadlock@gmail.com>
+ * @copyright  Copyright (c) 2009 - 2018, Justin Tadlock
+ * @link       https://themehybrid.com/plugins/members
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
+
+namespace Members\Admin;
 
 /**
  * Role management class.
  *
- * @since  1.0.0
+ * @since  2.0.0
  * @access public
  */
-final class Members_Admin_Manage_Roles {
+final class Manage_Roles {
 
 	/**
 	 * Holds the instances of this class.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access private
 	 * @var    object
 	 */
@@ -30,7 +32,7 @@ final class Members_Admin_Manage_Roles {
 	/**
 	 * Name of the page we've created.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @var    string
 	 */
@@ -39,7 +41,7 @@ final class Members_Admin_Manage_Roles {
 	/**
 	 * The page object to show.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @var    object
 	 */
@@ -48,21 +50,22 @@ final class Members_Admin_Manage_Roles {
 	/**
 	 * Sets up our initial actions.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @return void
 	 */
 	public function __construct() {
 
 		// If the role manager is active.
-		if ( members_role_manager_enabled() )
-			add_action( 'admin_menu', array( $this, 'add_admin_page' ) );
+		if ( members_role_manager_enabled() ) {
+			add_action( 'admin_menu', array( $this, 'add_admin_page' ), 15 );
+		}
 	}
 
 	/**
 	 * Adds the roles page to the admin.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @return void
 	 */
@@ -87,18 +90,18 @@ final class Members_Admin_Manage_Roles {
 			$title = esc_html__( 'Edit Role', 'members' );
 
 		// Create the Manage Roles page.
-		$this->page = add_submenu_page( 'users.php', $title, esc_html__( 'Roles', 'members' ), $edit_roles_cap, 'roles', array( $this, 'page' ) );
+		$this->page = add_submenu_page( 'members', $title, esc_html__( 'Roles', 'members' ), $edit_roles_cap, 'roles', array( $this, 'page' ) );
 
 		// Let's roll if we have a page.
 		if ( $this->page ) {
 
 			// If viewing the edit role page.
 			if ( isset( $_REQUEST['action'] ) && 'edit' === $_REQUEST['action'] && current_user_can( 'edit_roles' ) )
-				$this->page_obj = new Members_Admin_Role_Edit();
+				$this->page_obj = new Role_Edit();
 
 			// If viewing the role list page.
 			else
-				$this->page_obj = new Members_Admin_Roles();
+				$this->page_obj = new Roles();
 
 			// Load actions.
 			add_action( "load-{$this->page}", array( $this, 'load' ) );
@@ -111,7 +114,7 @@ final class Members_Admin_Manage_Roles {
 	/**
 	 * Checks posted data on load and performs actions if needed.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @return void
 	 */
@@ -124,7 +127,7 @@ final class Members_Admin_Manage_Roles {
 	/**
 	 * Loads necessary scripts/styles.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @param  string  $hook_suffix
 	 * @return void
@@ -138,7 +141,7 @@ final class Members_Admin_Manage_Roles {
 	/**
 	 * Outputs the page.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @return void
 	 */
@@ -151,7 +154,7 @@ final class Members_Admin_Manage_Roles {
 	/**
 	 * Returns the instance.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @return object
 	 */
@@ -164,4 +167,4 @@ final class Members_Admin_Manage_Roles {
 	}
 }
 
-Members_Admin_Manage_Roles::get_instance();
+Manage_Roles::get_instance();

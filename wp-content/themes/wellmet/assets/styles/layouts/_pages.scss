@@ -110,6 +110,56 @@ h3.fancy:before {
 	border-bottom:1px solid $grey;
 }
 
+/* Grantee Resources */
+.panel-default>.panel-heading {
+	background-color: #ffffff;
+}
+.panel-default>.panel-heading+.panel-collapse>.panel-body {
+	background-color: #f7f7f7;
+}
+
+.panel-body {
+	ul {
+		list-style: none;
+	
+		li {
+			margin-top: 5px;
+			&:before {
+			  content: "\2022";
+			  color: #79b118;
+			  font-weight: bold;
+			  display: inline-block; 
+			  width: 1em;
+			  margin-left: -1em;
+			}
+		}
+	}
+}
+.panel-title {
+	position: relative;
+	h3 {
+		margin-top: 0;
+		margin-bottom: 0;
+	}
+	.accordion-trigger {
+		position: relative;
+		display: block;
+		&:after {
+			content:'\2191';
+			width: 30px;
+			height: 30px;
+			position: absolute;
+			right: 0;
+			top: 10px;
+		}
+		&.collapsed {
+			&:after {
+				content:'\2193';
+			}
+		}
+	}
+}
+
 
 /*****************************************/
 /**** LOGIN FORM ******************/

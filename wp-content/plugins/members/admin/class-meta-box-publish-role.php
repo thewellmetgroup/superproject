@@ -4,24 +4,26 @@
  *
  * @package    Members
  * @subpackage Admin
- * @author     Justin Tadlock <justin@justintadlock.com>
- * @copyright  Copyright (c) 2009 - 2016, Justin Tadlock
- * @link       http://themehybrid.com/plugins/members
+ * @author     Justin Tadlock <justintadlock@gmail.com>
+ * @copyright  Copyright (c) 2009 - 2018, Justin Tadlock
+ * @link       https://themehybrid.com/plugins/members
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
+
+namespace Members\Admin;
 
 /**
  * Class to handle the role meta box edit/new role screen.
  *
- * @since  1.0.0
+ * @since  2.0.0
  * @access public
  */
-final class Members_Meta_Box_Publish_Role {
+final class Meta_Box_Publish_Role {
 
 	/**
 	 * Holds the instances of this class.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access private
 	 * @var    object
 	 */
@@ -30,7 +32,7 @@ final class Members_Meta_Box_Publish_Role {
 	/**
 	 * Adds our methods to the proper hooks.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @return void
 	 */
@@ -43,7 +45,7 @@ final class Members_Meta_Box_Publish_Role {
 	/**
 	 * Runs on the page load hook to hook in the meta boxes.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @return void
 	 */
@@ -55,7 +57,7 @@ final class Members_Meta_Box_Publish_Role {
 	/**
 	 * Adds the meta box.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @param  string  $screen_id
 	 * @return void
@@ -68,7 +70,7 @@ final class Members_Meta_Box_Publish_Role {
 	/**
 	 * Outputs the meta box HTML.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @param  object  $role
 	 * @return void
@@ -95,8 +97,19 @@ final class Members_Meta_Box_Publish_Role {
 
 				<div class="misc-pub-section misc-pub-section-users">
 					<i class="dashicons dashicons-admin-users"></i>
-					<?php esc_html_e( 'Users:', 'members' ); ?>
-					<strong class="user-count"><?php echo number_format_i18n( $user_count ); ?></strong>
+					<?php if ( 0 < $user_count && current_user_can( 'list_users' ) ) : ?>
+
+						<a href="<?php echo esc_url( add_query_arg( 'role', $role->name, admin_url( 'users.php' ) ) ); ?>"><?php echo esc_html(
+							sprintf(
+								_n( '%s User', '%s Users', absint( $user_count ), 'members' ),
+								number_format_i18n( $user_count )
+							)
+						); ?></a>
+
+					<?php else : ?>
+						<?php esc_html_e( 'Users:', 'members' ); ?>
+						<strong class="user-count"><?php echo number_format_i18n( $user_count ); ?></strong>
+					<?php endif; ?>
 				</div>
 
 				<div class="misc-pub-section misc-pub-section-granted">
@@ -140,7 +153,7 @@ final class Members_Meta_Box_Publish_Role {
 	/**
 	 * Returns the instance.
 	 *
-	 * @since  1.0.0
+	 * @since  2.0.0
 	 * @access public
 	 * @return object
 	 */
@@ -153,4 +166,4 @@ final class Members_Meta_Box_Publish_Role {
 	}
 }
 
-Members_Meta_Box_Publish_Role::get_instance();
+Meta_Box_Publish_Role::get_instance();

@@ -222,8 +222,8 @@ if (!empty($myposts)) :
         			break;
     			}
 			}
-			/*print_r($borough_data);*/
-			if (count($borough_data)==0 && $cat=="") {
+			//print_r($borough_data);
+			if (!isset($borough_data) && $cat=="") {
 				$rowheader = $curr_year.' / '.$total_grants;
 			} else {
 				$rowheader = $curr_year;
@@ -247,7 +247,7 @@ if (!empty($myposts)) :
 		//if ($counter<4) :
 			$counter++;
 			//do math on the total grants for this year
-			$total_grants = $total_grants + get_field('grant_amount');
+			$total_grants = intval($total_grants) + intval(get_field('grant_amount'));
 		//endif;
 		//if ($counter==4) :
 			//$counter=0;

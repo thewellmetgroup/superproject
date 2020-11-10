@@ -4,19 +4,15 @@
  *
  * @package    Members
  * @subpackage Admin
- * @author     Justin Tadlock <justin@justintadlock.com>
- * @copyright  Copyright (c) 2009 - 2016, Justin Tadlock
- * @link       http://themehybrid.com/plugins/members
+ * @author     Justin Tadlock <justintadlock@gmail.com>
+ * @copyright  Copyright (c) 2009 - 2018, Justin Tadlock
+ * @link       https://themehybrid.com/plugins/members
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
 # Register scripts/styles.
 add_action( 'admin_enqueue_scripts', 'members_admin_register_scripts', 0 );
 add_action( 'admin_enqueue_scripts', 'members_admin_register_styles',  0 );
-
-# Custom manage users columns.
-add_filter( 'manage_users_columns',       'members_manage_users_columns'              );
-add_filter( 'manage_users_custom_column', 'members_manage_users_custom_column', 10, 3 );
 
 /**
  * Get an Underscore JS template.
@@ -27,7 +23,7 @@ add_filter( 'manage_users_custom_column', 'members_manage_users_custom_column', 
  * @return bool
  */
 function members_get_underscore_template( $name ) {
-	require_once( members_plugin()->admin_dir . "tmpl/{$name}.php" );
+	require_once( members_plugin()->dir . "admin/tmpl/{$name}.php" );
 }
 
 /**
@@ -41,8 +37,9 @@ function members_admin_register_scripts() {
 
 	$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-	wp_register_script( 'members-settings',  members_plugin()->js_uri . "settings{$min}.js",  array( 'jquery'  ), '', true );
-	wp_register_script( 'members-edit-role', members_plugin()->js_uri . "edit-role{$min}.js", array( 'postbox', 'wp-util' ), '', true );
+	wp_register_script( 'members-settings',  members_plugin()->uri . "js/settings{$min}.js",  array( 'jquery'  ), '', true );
+	wp_register_script( 'members-edit-post', members_plugin()->uri . "js/edit-post{$min}.js", array( 'jquery'  ), '', true );
+	wp_register_script( 'members-edit-role', members_plugin()->uri . "js/edit-role{$min}.js", array( 'postbox', 'wp-util' ), '', true );
 
 	// Localize our script with some text we want to pass in.
 	$i18n = array(
@@ -50,7 +47,8 @@ function members_admin_register_scripts() {
 		'button_role_ok'   => esc_html__( 'OK',                  'members' ),
 		'label_grant_cap'  => esc_html__( 'Grant %s capability', 'members' ),
 		'label_deny_cap'   => esc_html__( 'Deny %s capability',  'members' ),
-		'ays_delete_role'  => esc_html__( 'Are you sure you want to delete this role? This is a permanent action and cannot be undone.', 'members' )
+		'ays_delete_role'  => esc_html__( 'Are you sure you want to delete this role? This is a permanent action and cannot be undone.', 'members' ),
+		'hidden_caps'      => members_get_hidden_caps()
 	);
 
 	wp_localize_script( 'members-edit-role', 'members_i18n', $i18n );
@@ -67,7 +65,7 @@ function members_admin_register_styles() {
 
 	$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-	wp_register_style( 'members-admin', members_plugin()->css_uri . "admin{$min}.css" );
+	wp_register_style( 'members-admin', members_plugin()->uri . "css/admin{$min}.css" );
 }
 
 /**
@@ -112,7 +110,7 @@ function members_delete_role( $role ) {
 	remove_role( $role );
 
 	// Remove the role from the role factory.
-	members_role_factory()->remove_role( $role );
+	members_unregister_role( $role );
 }
 
 /**
@@ -129,67 +127,114 @@ function members_get_user_meta_keys() {
 	return $wpdb->get_col( "SELECT meta_key FROM $wpdb->usermeta GROUP BY meta_key ORDER BY meta_key" );
 }
 
+add_action( 'admin_enqueue_scripts', 'members_add_pointers' );
 /**
- * Adds custom columns to the `users.php` screen.
+ * Adds helper pointers to the admin
  *
- * @since  1.0.0
- * @access public
- * @param  array  $columns
- * @return array
+ * @return void
  */
-function members_manage_users_columns( $columns ) {
+function members_add_pointers() {
 
-	// If multiple roles per user is not enabled, bail.
-	if ( ! members_multiple_user_roles_enabled() )
-		return $columns;
+	$pointers = apply_filters( 'members_admin_pointers', array() );
 
-	// Unset the core WP `role` column.
-	if ( isset( $columns['role'] ) )
-		unset( $columns['role'] );
-
-	// Add our new roles column.
-	$columns['roles'] = esc_html__( 'Roles', 'members' );
-
-	// Move the core WP `posts` column to the end.
-	if ( isset( $columns['posts'] ) ) {
-		$p = $columns['posts'];
-		unset( $columns['posts'] );
-		$columns['posts'] = $p;
+	if ( empty( $pointers ) ) {
+		return;
 	}
 
-	return $columns;
+	// Get dismissed pointers
+	$dismissed = explode( ',', (string) get_user_meta( get_current_user_id(), 'dismissed_wp_pointers', true ) );
+	$valid_pointers =array();
+ 
+	// Check pointers and remove dismissed ones.
+	foreach ( $pointers as $pointer_id => $pointer ) {
+ 
+		// Sanity check
+		if ( in_array( $pointer_id, $dismissed ) || empty( $pointer )  || empty( $pointer_id ) || empty( $pointer['target'] ) || empty( $pointer['options'] ) ) {
+			continue;
+		}
+ 
+		$pointer['pointer_id'] = $pointer_id;
+ 
+		$valid_pointers['pointers'][] =  $pointer;
+	}
+ 
+	if ( empty( $valid_pointers ) ) {
+		return;
+	}
+ 
+	wp_enqueue_style( 'wp-pointer' );
+	wp_enqueue_script( 'members-pointers', members_plugin()->uri . '/js/members-pointers.min.js', array( 'wp-pointer' ) );
+	wp_localize_script( 'members-pointers', 'membersPointers', $valid_pointers );
 }
 
+add_action( 'in_admin_header', 'members_admin_header', 0 );
 /**
- * Handles the output of the roles column on the `users.php` screen.
+ * Branded header
  *
- * @since  1.0.0
- * @access public
- * @param  string  $output
- * @param  string  $column
- * @param  int     $user_id
- * @return string
+ * @return void
  */
-function members_manage_users_custom_column( $output, $column, $user_id ) {
+function members_admin_header() {
 
-	if ( 'roles' === $column && members_multiple_user_roles_enabled() ) {
-
-		$user = new WP_User( $user_id );
-
-		$user_roles = array();
-		$output = esc_html__( 'None', 'members' );
-
-		if ( is_array( $user->roles ) ) {
-
-			foreach ( $user->roles as $role ) {
-
-				if ( members_role_exists( $role ) )
-					$user_roles[] = members_translate_role( $role );
-			}
-
-			$output = join( ', ', $user_roles );
-		}
+	if ( is_plugin_active( 'memberpress/memberpress.php' ) || empty( $_GET['page'] ) || ! in_array( $_GET['page'], array( 'roles', 'members', 'members-settings', 'members-about' ) ) ) {
+		return;
 	}
 
-	return $output;
+	$dismissed = get_option( 'members_dismiss_upgrade_header', false );
+
+	if ( ! empty( $dismissed ) ) {
+		return;
+	}
+
+    ?>
+
+    <div class="members-upgrade-header" id="members-upgrade-header">
+    	<span id="close-members-upgrade-header">X</span>
+    	<?php _e( 'You\'re using Members. To unlock more features, consider <a href="https://memberpress.com/plans/pricing/?utm_source=members&utm_medium=link&utm_campaign=in_plugin&utm_content=pro_features">upgrading to MemberPress.</a>' ); ?>
+    </div>
+
+    <div id="members-admin-header"><img class="members-logo" src="<?php echo members_plugin()->uri . 'img/Members-header.svg'; ?>" /></div>
+
+    <script>
+    	jQuery(document).ready(function($) {
+    		$('#close-members-upgrade-header').click(function(event) {
+    			var upgradeHeader = $('#members-upgrade-header');
+    			upgradeHeader.fadeOut();
+    			$.ajax({
+    				url: ajaxurl,
+    				type: 'POST',
+    				data: {
+    					action: 'members_dismiss_upgrade_header',
+    					nonce: "<?php echo wp_create_nonce( 'members_dismiss_upgrade_header' ); ?>"
+    				},
+    			})
+    			.done(function() {
+    				console.log("success");
+    			})
+    			.fail(function() {
+    				console.log("error");
+    			})
+    			.always(function() {
+    				console.log("complete");
+    			});
+    		});
+    	});
+    </script>
+
+    <?php
+}
+
+add_action( 'wp_ajax_members_dismiss_upgrade_header', 'members_dismiss_upgrade_header' );
+/**
+ * Dismisses the Members upgrade header bar.
+ *
+ * @return void
+ */
+function members_dismiss_upgrade_header() {
+
+	// Security check
+	if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'members_dismiss_upgrade_header' ) ) {
+		die();
+	}
+
+	update_option( 'members_dismiss_upgrade_header', true );
 }

@@ -4,9 +4,9 @@
  *
  * @package    Members
  * @subpackage Includes
- * @author     Justin Tadlock <justin@justintadlock.com>
- * @copyright  Copyright (c) 2009 - 2016, Justin Tadlock
- * @link       http://themehybrid.com/plugins/members
+ * @author     Justin Tadlock <justintadlock@gmail.com>
+ * @copyright  Copyright (c) 2009 - 2018, Justin Tadlock
+ * @link       https://themehybrid.com/plugins/members
  * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
@@ -18,6 +18,7 @@
  * @return bool
  */
 function members_role_manager_enabled() {
+
 	return apply_filters( 'members_role_manager_enabled', members_get_setting( 'role_manager' ) );
 }
 
@@ -30,7 +31,20 @@ function members_role_manager_enabled() {
  * @return bool
  */
 function members_explicitly_deny_caps() {
+
 	return apply_filters( 'members_explicitly_deny_caps', members_get_setting( 'explicit_denied_caps' ) );
+}
+
+/**
+ * Whether to show human-readable caps.
+ *
+ * @since  2.0.0
+ * @access public
+ * @return bool
+ */
+function members_show_human_caps() {
+
+	return apply_filters( 'members_show_human_caps', members_get_setting( 'show_human_caps' ) );
 }
 
 /**
@@ -41,6 +55,7 @@ function members_explicitly_deny_caps() {
  * @return bool
  */
 function members_multiple_user_roles_enabled() {
+
 	return apply_filters( 'members_multiple_roles_enabled', members_get_setting( 'multi_roles' ) );
 }
 
@@ -52,6 +67,7 @@ function members_multiple_user_roles_enabled() {
  * @return bool
  */
 function members_content_permissions_enabled() {
+
 	return apply_filters( 'members_content_permissions_enabled', members_get_setting( 'content_permissions' ) );
 }
 
@@ -63,7 +79,8 @@ function members_content_permissions_enabled() {
  * @return bool
  */
 function members_login_widget_enabled() {
-	return apply_filters( 'members_login_widget_enabled', members_get_setting( 'login_form_widget' ) );
+
+	return apply_filters( 'members_login_widget_enabled', true );
 }
 
 /**
@@ -74,7 +91,8 @@ function members_login_widget_enabled() {
  * @return bool
  */
 function members_users_widget_enabled() {
-	return apply_filters( 'members_users_widget_enabled', members_get_setting( 'users_widget' ) );
+
+	return apply_filters( 'members_users_widget_enabled', true );
 }
 
 /**
@@ -111,13 +129,15 @@ function members_get_default_settings() {
 
 		// @since 0.2.0
 		'private_feed'              => 0,
-		'login_form_widget'         => 0,
-		'users_widget'              => 0,
 		'content_permissions_error' => esc_html__( 'Sorry, but you do not have permission to view this content.', 'members' ),
 		'private_feed_error'        => esc_html__( 'You must be logged into the site to view this content.',      'members' ),
 
 		// @since 1.0.0
 		'explicit_denied_caps' => true,
 		'multi_roles'          => true,
+
+		// @since 2.0.0
+		'show_human_caps'      => true,
+		'private_rest_api'     => false,
 	);
 }

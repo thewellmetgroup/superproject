@@ -11,6 +11,7 @@ var imagemin     = require('gulp-imagemin');
 var jshint       = require('gulp-jshint');
 var lazypipe     = require('lazypipe');
 var less         = require('gulp-less');
+var sass         = require('gulp-sass');
 var merge        = require('merge-stream');
 var cssNano      = require('gulp-cssnano');
 var plumber      = require('gulp-plumber');
@@ -19,6 +20,7 @@ var runSequence  = require('run-sequence');
 var sass         = require('gulp-sass');
 var sourcemaps   = require('gulp-sourcemaps');
 var uglify       = require('gulp-uglify');
+
 
 // See https://github.com/austinpray/asset-builder
 var manifest = require('asset-builder')('./assets/manifest.json');
@@ -84,9 +86,6 @@ var cssTasks = function(filename) {
     })
     .pipe(function() {
       return gulpif(enabled.maps, sourcemaps.init());
-    })
-    .pipe(function() {
-      return gulpif('*.less', less());
     })
     .pipe(function() {
       return gulpif('*.scss', sass({
