@@ -15,3 +15,7 @@ wp-*.php
 !wp-config.php
 index.php
 gdconfig.php
+license.txt
+readme.html
+README.md
+xmlrpc.php
