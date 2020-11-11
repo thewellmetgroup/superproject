@@ -10,6 +10,7 @@ wp-content/plugins/
 wp-content/themes/
 wp-content/themes/wellmet/bower_components/
 wp-content/themes/wellmet/node_modules/
+wp-content/object-cache.php
 wp-*.php
 index.php
 gdconfig.php
