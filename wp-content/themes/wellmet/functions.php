@@ -62,29 +62,34 @@ add_action( 'init', 'wellmet_change_post_object' );
 
 
 //add custom columns to the grantee listing
-add_filter('manage_posts_columns', 'my_columns');
+add_filter('manage_posts_columns', 'my_columns', 'post');
 function my_columns($columns) {
-	
-	//remove these from view
-	unset($columns['author']);
-    unset($columns['tags']);
-    unset($columns['comments']);
-    
-	//re-order the others
-	$date = $columns['date'];
-	unset($columns['date']);
-	$categories = $columns['categories'];
-	unset($columns['categories']);
-    $columns['year'] = __('Year','sage');
-    $columns['grant_amount'] = __('Grant Amount','sage');
-    $columns['borough'] = __('Borough','sage');
-    $columns['categories'] = $categories;
-    $columns['date'] = $date;
- 
-    return $columns;
+	$post_type = get_post_type();
+	if ( $post_type == 'post' ) {
+		//remove these from view
+		unset($columns['author']);
+	    unset($columns['tags']);
+	    unset($columns['comments']);
+	    
+		//re-order the others
+		$date = $columns['date'];
+		unset($columns['date']);
+		$categories = $columns['categories'];
+		unset($columns['categories']);
+	    $columns['year'] = __('Year','sage');
+	    $columns['grant_amount'] = __('Grant Amount','sage');
+	    $columns['borough'] = __('Borough','sage');
+	    $columns['categories'] = $categories;
+	    $columns['date'] = $date;
+	 
+	    return $columns;
+	} else {
+		$columns['author'] = __('Author','sage');
+		return $columns;
+	}
 }
 
-add_action('manage_posts_custom_column',  'my_show_columns');
+add_action('manage_posts_custom_column',  'my_show_columns', 'post');
 function my_show_columns($name) {
     global $post;
     switch ($name) {
@@ -104,6 +109,45 @@ function my_show_columns($name) {
     }
    
 }
+
+//******************************************************************//
+// REGISTER CUSTOM POST TYPES ////////////////////////////////////////
+function wellmet_create_post_types()
+{
+    // Register events
+    $news_labels = array(
+        'name' => 'News',
+        'singular_name' => 'News',
+        'add_new' => 'Add News',
+        'add_new_item' => 'Add News Item',
+        'edit_item' => 'Edit News',
+        'new_item' => 'New',
+        'all_items' => 'All News',
+        'view_item' => 'View News',
+        'search_items' => 'Search News',
+        'not_found' =>  'No News Found',
+        'not_found_in_trash' => 'No News Found in Trash',
+        'parent_item_colon' => '',
+        'menu_name' => 'News',
+    );
+    register_post_type('news', array(
+            'labels' => $news_labels,
+            'menu_icon' => 'dashicons-megaphone',
+            'has_archive' => true,
+            'public' => true,
+            'supports' => array( 'title', 'editor', 'excerpt', 'custom-fields', 'thumbnail','page-attributes' ),
+            'exclude_from_search' => false,
+            'hierarchical' => true,
+            'capability_type' => 'post',
+            //'rewrite' => array( 'slug' => 'news-and-updates' ),
+            'menu_position' => 20,
+            'show_in_rest' => true,
+        ));
+    
+}
+add_action('init', 'wellmet_create_post_types');
+// END CUSTOM POST TYPES ////////////////////////////////////////
+
 
 function current_template() {
 	$pageTemplate = get_page_template();
