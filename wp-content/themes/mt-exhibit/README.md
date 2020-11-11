@@ -1,1 +1,0 @@
-Exhibit Theme by MediaTemple
