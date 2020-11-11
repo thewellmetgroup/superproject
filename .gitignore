@@ -1,3 +1,4 @@
+# ignore everything in the root and all WP core files
 .DS_Store
 .htaccess
 wp-config.php
@@ -7,15 +8,16 @@ wp-includes/
 wp-content/uploads/
 wp-content/plugins/
 wp-content/themes/
-!wp-content/themes/wellmet
-!wp-content/plugins/advanced-custom-fields-pro
 wp-content/themes/wellmet/bower_components/
 wp-content/themes/wellmet/node_modules/
 wp-*.php
-!wp-config.php
 index.php
 gdconfig.php
 license.txt
 readme.html
 README.md
 xmlrpc.php
+
+# do not ignore these
+!wp-content/themes/wellmet
+!wp-content/plugins/advanced-custom-fields-pro
