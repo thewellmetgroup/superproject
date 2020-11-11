@@ -1,0 +1,146 @@
+//GRANTEES
+.grantee-detail {
+	padding-top:30px;
+	
+	.bgstyle {
+		background-repeat:no-repeat;
+		background-size:cover;
+		background-position:top center;
+	}
+	.left, .right, .full {
+		min-height:400px;
+		position:relative;
+		@include breakpoint(large) {
+			min-height:600px;
+		}
+	}
+	.title {
+		position:absolute;
+		bottom:0;
+		background-color: rgba(0, 0, 0, .7);
+		padding:15px 30px;
+		z-index:10;
+		width:100%;
+		color:#FFF;
+		text-transform:uppercase;
+		.header {
+			font-size:.75em;
+		}
+		.name {
+			font-size:1.5em;
+			line-height:1em;
+		}
+	}
+	
+	.full, .halfy {
+		margin-bottom:15px;
+		@include breakpoint(medium) {
+			margin-bottom:0;
+		}
+		.image-description {
+			@extend .sr-only;
+		}
+	}
+	
+	.halfy {
+		position: relative;
+		min-height:200px;
+		.halfy-content {
+			position: absolute;
+  			top: 50%;
+  			left: 50%;
+  			width:80%;
+  			transform: translate(-50%, -50%);
+  			color:#FFF;
+  			text-align:center;
+  			font-size:16px;
+  			@include breakpoint(medium) {
+				font-size:20px;
+			}
+  			@include breakpoint(medium) {
+				font-size:2vw;
+			}
+  		}
+		@include breakpoint(large) {
+			min-height:300px;
+		}
+		&.top {
+			
+		}
+		&.bottom {
+			border-top:none;
+			@include breakpoint(medium) {
+				border-top:15px solid $body-bg;
+			}
+		}
+		.cr_btn {
+			background-color: rgba(49, 51, 61, .2);
+			border-color:transparent;
+			color:#FFF;
+		}
+	}
+	
+	
+	.main-desc, .website_url {
+		padding-left:0;
+		padding-right:0;
+		@include breakpoint(medium) {
+			padding-left:10%;
+			padding-right:10%;
+		}
+	}
+	.stats {
+		text-align:center;
+		border-bottom:1px solid $grey;
+		border-top:1px solid $grey;
+		margin-bottom:20px;
+		margin-top:20px;
+		padding-bottom:20px;
+		padding-top:20px;
+		margin-right:0;
+		margin-left:0;
+		font-size:1em;
+		font-weight:300;
+		@include breakpoint(small) {
+			font-size:1.5em;
+		}
+		.fa {
+			margin-bottom:20px;
+		}
+	}
+}
+
+//this is used within boxes that have images flushed to edges
+.content-padding {
+	padding:15px;
+}
+
+.grantee-item, .staff-item {
+	padding-top:30px;
+	.item-wrapper {
+		background-color:#fff;
+		-webkit-box-shadow: 2px 2px 5px 1px rgba(0,0,0,.1);
+		box-shadow: 2px 2px 5px 1px rgba(0,0,0,.1);
+		
+		h2 {
+			font-size:30px;
+		}
+		.thumb img {
+			width:100%;
+			height:auto;
+		}
+		.more-button {
+			padding-top:0;
+			padding-bottom:30px;
+			text-align:center;
+			.cr_btn {
+				margin-top:0;
+				font-size:14px;
+				background:#fff;
+			}
+		}
+	}
+	.stats {
+		font-weight:700;
+	}
+}
