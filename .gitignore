@@ -13,7 +13,7 @@ wp-content/themes/wellmet/node_modules/
 wp-content/object-cache.php
 wp-*.php
 index.php
-gdconfig.php
+gd-config.php
 license.txt
 readme.html
 README.md
