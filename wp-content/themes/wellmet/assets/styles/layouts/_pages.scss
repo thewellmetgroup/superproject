@@ -94,7 +94,7 @@ h3.fancy:before {
 .grantee-filters {
 	
 }
-.grantee-row {
+.grantee-row, .news-listing {
 	margin-bottom:30px;
 }
 .no-results {
@@ -206,3 +206,22 @@ h3.fancy:before {
 }
 
 /**** //END LOGIN ******/
+
+
+/* NEWS LISTING */
+.tweet {
+	margin-bottom: 1rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid $grey;
+	.date {
+		color:$medium-grey;
+	}
+}
+.pagination {
+	span, a {
+		display: inline-block;
+		padding: 5px;
+		font-weight: bold;
+		font-size: 2rem;
+	}
+}

@@ -22,6 +22,19 @@
       },
       finalize: function() {
         // JavaScript to be fired on all pages, after page specific JS is fired
+        if($('.news-listing').length) {
+
+          var $grid = $('.news-listing').masonry({
+            itemSelector: '.news-item',
+            columnWidth: '.news-item',
+            percentPosition: true,
+            originLeft: true
+          });
+          // layout Masonry after each image loads
+          $grid.imagesLoaded().progress( function() {
+            $grid.masonry('layout');
+          });
+        }
       }
     },
     // Home page
@@ -43,15 +56,15 @@
     'grantees': {
       init: function() {
         var $grid = $('.grantee-row').masonry({
-  			itemSelector: '.grantee-item',
-  			columnWidth: '.grantee-item',
-  			percentPosition: true,
-  			originLeft: true
-		});
-		// layout Masonry after each image loads
-		$grid.imagesLoaded().progress( function() {
-			$grid.masonry('layout');
-		});
+      			itemSelector: '.grantee-item',
+      			columnWidth: '.grantee-item',
+      			percentPosition: true,
+      			originLeft: true
+		    });
+    		// layout Masonry after each image loads
+    		$grid.imagesLoaded().progress( function() {
+    			$grid.masonry('layout');
+    		});
       },
       finalize: function() {
         // JavaScript to be fired on the home page, after the init JS
