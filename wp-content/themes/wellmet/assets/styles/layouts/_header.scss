@@ -58,7 +58,9 @@ header {
     	border-top-right-radius: 4px;
     	
 	}
-	
+	.navbar-nav {
+		float: right;
+	}
 	.navbar-nav > li > a {
 		padding:10px 15px;
 		@include breakpoint(medium) {
@@ -110,7 +112,6 @@ header {
 					font-weight: 700;
 					
 					background-color:#fff;
-					margin-right: 1em;
 					text-transform:uppercase;
 					border:1px solid #fff;
 					
@@ -129,23 +130,28 @@ header {
 							background-color:#FFF !important;
 							color:$brand-secondary !important;
 						}
-					}
-					
-					
+					}					
+				}
+				&.members-only a {
+					border-radius: 5px;
+					background-color: black;
 				}
 			}
 			
 				
 			//assuming the only custom link in menu will be the donate link
-			li.menu-item-type-custom a {
-				margin-right: 0;
-				background:$brand-secondary;
-  				color:white;
-				border-radius:4px;
-				&:hover {
-					background:$brand-secondary !important;
-  					color:white !important;
-  				}
+			li.menu-item-type-custom  {
+				margin-left: 10px;
+				a {
+					margin-right: 0;
+					background:$brand-secondary;
+	  				color:white;
+					border-radius:4px;
+					&:hover {
+						background:$brand-tertiary !important;
+	  					color:white !important;
+	  				}
+	  			}
 			}
 		}
 		

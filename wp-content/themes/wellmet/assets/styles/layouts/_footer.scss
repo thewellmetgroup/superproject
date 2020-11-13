@@ -63,5 +63,17 @@ footer {
 
     		}
     	}
+        .members-only {
+            border-radius: 5px;
+            background-color: $brand-tertiary;
+            padding: 10px 15px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-decoration: none;
+            &:hover {
+                background-color: $brand-secondary;
+            }
+        }
 	}
+
 }
