@@ -34,3 +34,30 @@ add_filter('excerpt_more', __NAMESPACE__ . '\\excerpt_more');
 
 //remove WP version from header
 remove_action('wp_head', 'wp_generator');
+
+/* Show Password Protected Content To Logged In Users */
+add_filter( 'post_password_required', __NAMESPACE__ . '\\logged_in_show_password_protected', 10, 2 );
+function logged_in_show_password_protected( $returned, $post ) {
+  
+    if ( $returned && is_user_logged_in() )
+        $returned = false;
+
+    return $returned;
+}
+
+
+//REdirect on logout
+add_action('wp_logout',__NAMESPACE__ . '\\ps_redirect_after_logout');
+function ps_redirect_after_logout(){
+         wp_redirect( '/login/' );
+         exit();
+}
+
+//Redirect on login
+function my_login_redirect( $redirect_to, $request, $user ) {
+    $redirect_to =  '/member-resources/';
+ 
+    return $redirect_to;
+}
+ 
+add_filter( 'login_redirect', __NAMESPACE__ . '\\my_login_redirect', 10, 3 );

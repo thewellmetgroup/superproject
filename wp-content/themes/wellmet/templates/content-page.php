@@ -5,7 +5,7 @@
 		<div class="col-md-8">
 
 			<?php
-			if ( ! post_password_required() ) {
+			if ( ! post_password_required() || is_user_logged_in()) {
 				if( have_rows('quotes') ): 
 					echo '<div id="quotes" class="quotes">';
 					// Loop through rows.
@@ -28,7 +28,7 @@
 			<?php 
 
 			//Grantee Resources
-			if ( ! post_password_required() ) {
+			if ( ! post_password_required() || is_user_logged_in()) {
 				if( have_rows('resource_section') ):
 					include( locate_template( 'templates/content-resources.php' ) );
 				endif;
@@ -41,7 +41,7 @@
 	</div>
 	<?php
 	//Member Impact Areas
-	if ( ! post_password_required() ) {
+	if ( ! post_password_required() || is_user_logged_in()) {
 		if( have_rows('membership_benefits') ):
 			echo '<div class="row membership-areas">';
 				include( locate_template( 'templates/content-membership.php' ) );
