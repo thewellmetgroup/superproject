@@ -144,6 +144,7 @@ h3.fancy:before {
 	.accordion-trigger {
 		position: relative;
 		display: block;
+		padding-right: 45px;
 		&:after {
 			content:'\2191';
 			width: 30px;
@@ -223,5 +224,16 @@ h3.fancy:before {
 		padding: 5px;
 		font-weight: bold;
 		font-size: 2rem;
+	}
+}
+
+/* MEMBERSHIP */
+
+#quotes {
+	blockquote {
+		display: none;
+		&.active {
+			opacity: 1;
+		}
 	}
 }

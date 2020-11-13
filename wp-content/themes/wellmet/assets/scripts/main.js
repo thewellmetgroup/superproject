@@ -35,6 +35,41 @@
             $grid.masonry('layout');
           });
         }
+
+
+
+       
+
+        
+        var old = 0;
+        var numItems = $('#quotes blockquote').length;
+        function getRan() {
+          var news = old + 1;
+          if (news <= numItems) {
+              return news;
+          }
+
+          news = 1;
+          old = 0;
+          return news;
+        }
+
+        function show() {
+          var news = getRan();
+          $("#quotes blockquote").hide();
+          $("#quotes blockquote:nth-child(" + news + ")").fadeIn("slow");
+          old++;
+        }
+
+         if($('#quotes').length) {
+          
+          show();
+          setInterval(show, 7000);
+        }
+        
+
+
+
       }
     },
     // Home page
