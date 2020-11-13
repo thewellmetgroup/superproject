@@ -20,20 +20,11 @@
     		$staff_last_name = $value['user_lastname'];
     		$staff_bio = $value['user_description'];
     		
-    		if ($counter==0) :
-				echo '<div class="row">';
-			endif;
-					echo '<div class="col-xs-6 col-sm-3 col-md-2 staff-item">';
-					//load the leadership/staff template
-					include( locate_template( 'templates/content-staff-item.php' ) );				
-					echo '</div>';
-			if ($counter<6) :
-				$counter++;
-			endif;
-			if ($counter==6) :
-				$counter=0;
-				echo '</div>';		
-			endif;
+    		echo '<div class="col-xs-6 col-sm-3 col-md-2 staff-item">';
+				//load the leadership/staff template
+				include( locate_template( 'templates/content-staff-item.php' ) );				
+			echo '</div>';
+			
 			}
 		}
 	?>
