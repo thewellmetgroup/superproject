@@ -51,9 +51,6 @@ echo '<div class="panel-group" id="accordion" role="tablist" aria-multiselectabl
 						        echo '<p>'.$resource_item_description.'</p>';
 					        echo '</li>';
 						    
-					        if($resource_item_description) {
-					            echo '<p>'.$resource_item_description.'</p>';
-					        }
 
 			            endwhile;
 			        endif;
