@@ -28,7 +28,7 @@
 		<div class="excerpt content-padding" style="padding-top: 0;">
 			<?php 	if (has_excerpt()): 
 						the_excerpt();
-						echo '<a href="<?php echo esc_url( get_permalink() ); ?>">'. __( 'Read more', 'sage' ).'</a>';
+						echo '<a href="'.esc_url( get_permalink() ).'">'. __( 'Read more', 'sage' ).'</a>';
 
 					else:
 						the_content();
