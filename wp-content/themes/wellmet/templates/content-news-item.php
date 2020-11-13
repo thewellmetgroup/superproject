@@ -31,7 +31,7 @@
 						echo '<a href="<?php echo esc_url( get_permalink() ); ?>">'. __( 'Read more', 'sage' ).'</a>';
 
 					else:
-						echo trunc(get_the_content(), '100');
+						the_content();
 					endif;
 			 ?>
 		</div>
