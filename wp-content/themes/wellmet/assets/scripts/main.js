@@ -40,33 +40,32 @@
 
        
 
-        
+        //Quotes slideshow
         var old = 0;
         var numItems = $('#quotes blockquote').length;
-        function getRan() {
-          var news = old + 1;
-          if (news <= numItems) {
-              return news;
+        function getQuote() {
+          var quote = old + 1;
+          if (quote <= numItems) {
+              return quote;
           }
 
-          news = 1;
+          quote = 1;
           old = 0;
-          return news;
+          return quote;
         }
 
         function show() {
-          var news = getRan();
+          var quote = getQuote();
           $("#quotes blockquote").hide();
-          $("#quotes blockquote:nth-child(" + news + ")").fadeIn("slow");
+          $("#quotes blockquote:nth-child(" + quote + ")").fadeIn("slow");
           old++;
         }
-
-         if($('#quotes').length) {
-          
+        //only run if there are actual quotes
+        if($('#quotes').length) {
           show();
           setInterval(show, 7000);
         }
-        
+        //END quotes
 
 
 

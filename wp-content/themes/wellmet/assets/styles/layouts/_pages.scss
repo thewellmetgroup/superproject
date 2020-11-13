@@ -237,3 +237,24 @@ h3.fancy:before {
 		}
 	}
 }
+.membership-areas {
+	display: flex;
+}
+.memership-impact-area {
+	margin-bottom: 30px;
+	.item-wrapper {
+		background-color:#fff;
+		-webkit-box-shadow: 2px 2px 5px 1px rgba(0,0,0,.1);
+		box-shadow: 2px 2px 5px 1px rgba(0,0,0,.1);
+		height: 100%;
+		text-align: center;
+		h3, h2 {
+			margin-top: 0;
+		}
+		img {
+			max-height: 120px;
+			width: auto;
+			padding: 2rem;
+		}
+	}
+}
