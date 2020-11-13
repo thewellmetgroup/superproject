@@ -239,9 +239,14 @@ h3.fancy:before {
 }
 .membership-areas {
 	display: flex;
+	flex-wrap: wrap;
 }
 .memership-impact-area {
 	margin-bottom: 30px;
+	width: 100%;
+	@include breakpoint(medium) {
+		width: 50%;
+	}
 	.item-wrapper {
 		background-color:#fff;
 		-webkit-box-shadow: 2px 2px 5px 1px rgba(0,0,0,.1);
