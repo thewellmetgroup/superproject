@@ -6,7 +6,7 @@
 			<?php
 			// Check if the post has a Post Thumbnail assigned to it.
 			if ( !empty($staff_pic) ) {
-	    		echo get_avatar( $staff_ID, '512' );
+	    		echo get_simple_local_avatar( $staff_ID, '512', null, $staff_first_name.' '.$staff_last_name, array('scheme' => 'https'));
 			} 
 			?>
 		</div>
