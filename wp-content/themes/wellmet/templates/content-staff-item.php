@@ -6,8 +6,25 @@
 			<?php
 			// Check if the post has a Post Thumbnail assigned to it.
 			if ( !empty($staff_pic) ) {
-	    		echo get_avatar( $staff_ID, '512', null, $staff_first_name.' '.$staff_last_name, array('scheme' => 'https'));
-			} 
+	    		//echo get_avatar( $staff_ID, '512', null, $staff_first_name.' '.$staff_last_name, array('scheme' => 'https'));
+				//print_r($staff_pic);
+	    		// Image variables.
+			    $url = $staff_pic['url'];
+			    $title = $staff_pic['title'];
+			    $alt = $staff_pic['alt'];
+			    $caption = $staff_pic['caption'];
+
+			    // Thumbnail size attributes.
+			    $size = 'medium';
+			    $thumb = $staff_pic['sizes'][ $size ];
+			    $width = $staff_pic['sizes'][ $size . '-width' ];
+			    $height = $staff_pic['sizes'][ $size . '-height' ];
+			    echo '<img src="'.esc_url($thumb).'" alt="'.esc_attr($alt).'" width="'.$width.'" height="'.$height.'">';
+
+			}
+
+			
+
 			?>
 		</div>
 		<div class="title content-padding">

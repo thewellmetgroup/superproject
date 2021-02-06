@@ -16,11 +16,11 @@
 			foreach ($staff as $value) {
 	    
 	    		$staff_ID = $value['ID'];
-	    		$staff_pic = $value['user_avatar'];
+	    		$staff_pic = get_field('member_photo', 'user_'.$staff_ID);
 	    		$staff_first_name = $value['user_firstname'];
 	    		$staff_last_name = $value['user_lastname'];
 	    		$staff_bio = $value['user_description'];
-	    		
+
 	    		echo '<div class="col-xs-6 col-sm-3 col-md-2 staff-item">';
 					//load the leadership/staff template
 					include( locate_template( 'templates/content-staff-item.php' ) );				
