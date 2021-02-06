@@ -272,8 +272,12 @@ h3.fancy:before {
 	min-height: 100%;
 }
 .staff-item {
-	.title h3 {
-		font-size: 2rem;
+	.title {
+		margin-top: auto;
+		h3 {
+			font-size: 2rem;
+			margin-bottom: 0;
+		}
 	}
 	.item-wrapper {
 		display: flex;
