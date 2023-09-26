@@ -195,30 +195,40 @@ function halfy($pos,$bg_type,$picked_color,$halfy_img_url,$halfy_img_alt) {
 }
 class Random_color {
 			
-	  		public function get_color($rand) {
-        		//#79b118; //green
-	  			//#00c3df; //blue
-				//#ca195c; //purple
-				//#f4c021; //orange
-				$colors = array('#79b118','#00c3df','#ca195c','#f4c021');
-        		$picked_color=$colors[$rand-1];
-        		return $picked_color;
-    		}
-		}
+	public function get_color($rand) {
+		//#79b118; //green
+		//#00c3df; //blue
+		//#ca195c; //purple
+		//#f4c021; //orange
+		$colors = array('#79b118','#00c3df','#ca195c','#f4c021');
+		$picked_color=$colors[$rand-1];
+		return $picked_color;
+	}
+}
 		
-		class Grantee_Mission {
-			
-	  		public function get_mission() {
-        		$grantee_mission=get_field('featured_mission');
-        		$grantee_description=get_field('description');
-				//if the grantee mission if empty
-				if (empty($grantee_mission)) {
-					//set description excerpt as mission
-					$grantee_mission = trunc($grantee_description,10);
-				}
-        		return $grantee_mission;
-    		}
+class Grantee_Mission {
+	
+	public function get_mission() {
+		$grantee_mission=get_field('featured_mission');
+		$grantee_description=get_field('description');
+		//if the grantee mission if empty
+		if (empty($grantee_mission)) {
+			//set description excerpt as mission
+			$grantee_mission = trunc($grantee_description,10);
 		}
+		return $grantee_mission;
+	}
+}
+
+//function to replace depricated money_format in 7.4
+$fmt = numfmt_create( 'en-US', NumberFormatter::CURRENCY );
+$symbol = $fmt->getSymbol(NumberFormatter::INTL_CURRENCY_SYMBOL);
+
+function money_format($ignore,$value) {
+        global $fmt,$symbol;
+
+        return $fmt->formatCurrency($value,$symbol);
+}
 /**** END grantees *************/
 
 

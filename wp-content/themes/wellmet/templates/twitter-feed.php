@@ -1,4 +1,6 @@
 <?php
+//DEPRICATED
+/*
 $handle=$twitter_handle;
 $num_tweets = get_field('tweets_num');
 $twitter_oauth_access_token = get_field('twitter_oauth_access_token');
@@ -9,7 +11,6 @@ $twitter_consumer_secret = get_field('twitter_consumer_secret');
 if($twitter_oauth_access_token && $twitter_oauth_access_token_secret && $twitter_consumer_key && $twitter_consumer_secret ) {
 	require_once(get_theme_file_path().'/lib/TwitterAPIExchange.php');
 	 
-	/** Set access tokens here - see: https://dev.twitter.com/apps/ **/
 	$settings = array(
 	    'oauth_access_token' => $twitter_oauth_access_token,
 	    'oauth_access_token_secret' => $twitter_oauth_access_token_secret,
@@ -32,10 +33,7 @@ if($twitter_oauth_access_token && $twitter_oauth_access_token_secret && $twitter
 	->buildOauth($url, $requestMethod)
 	->performRequest(),$assoc = TRUE);
 
-	/*echo $twitter->setGetfield($getfield)
-	             ->buildOauth($url, $requestMethod)
-	             ->performRequest();*/
-
+	
 	if(array_key_exists("errors", $string)) {echo "<h3>Sorry, there was a problem.</h3><p>Twitter returned the following error message:</p><p><em>".$string[errors][0]["message"]."</em></p>";exit();}
 
 	foreach($string as $items)
@@ -67,5 +65,5 @@ if($twitter_oauth_access_token && $twitter_oauth_access_token_secret && $twitter
 } else {
 	echo __('Please check twitter oAuth settings', 'sage');
 }
-
+*/
 ?>

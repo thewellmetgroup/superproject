@@ -1,6 +1,6 @@
 <div class="page">
-	<div class="row">
-		<div class="col-md-4 social-feeds">
+<div class="row">
+		<div class="col-md-12">
 			<?php 
 			$twitter_handle = get_field('twitter_handle');
 			$twitter_header = get_field('twitter_header');
@@ -9,7 +9,7 @@
 
 			$newsletter_archives_header = get_field('newsletter_archives_header');
 			$newsletter_links = get_field('newsletter_links');
-
+			/*
 			if($twitter_handle) {
 				if($twitter_header) {
 					echo '<h3 style="margin-top:0;">'.$twitter_header.'</h3>';
@@ -24,7 +24,7 @@
 					echo '<h3>'.$instagram_header.'</h3>';
 				}
 				include( locate_template( 'templates/instagram-feed.php' ) );
-			}
+			}*/
 
 			if( have_rows('newsletter_links') ) {
 				if($newsletter_archives_header) {
@@ -52,7 +52,11 @@
 			?>
 			
 		</div>
-		<div class="col-md-8">
+	</div>
+
+	<div class="row">
+		
+		<div class="col-md-12">
 			<?php the_content(); ?>
 
 			<!-- News listing -->
@@ -111,9 +115,4 @@
 			<?php //wp_link_pages(['before' => '<nav class="page-nav"><p>' . __('Pages:', 'sage'), 'after' => '</p></nav>']); ?>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-md-12">
-		</div>
-	</div>
-
 </div>

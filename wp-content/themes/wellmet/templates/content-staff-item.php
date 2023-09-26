@@ -15,7 +15,7 @@
 			    $caption = $staff_pic['caption'];
 
 			    // Thumbnail size attributes.
-			    $size = 'medium';
+			    $size = 'thumbnail';
 			    $thumb = $staff_pic['sizes'][ $size ];
 			    $width = $staff_pic['sizes'][ $size . '-width' ];
 			    $height = $staff_pic['sizes'][ $size . '-height' ];

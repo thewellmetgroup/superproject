@@ -1,4 +1,5 @@
 <?php 
- echo do_shortcode("[instagram-feed]");
+    //deprecated
+    //echo do_shortcode("[instagram-feed]");
 
-  ?>
+?>

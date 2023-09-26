@@ -58,57 +58,59 @@
     <div class="row gutter-15">
         <?php
         //do this switcharoo if there are images and there's more than 1
-        if ( count($grantee_images)>1 ) { ?>
-        <div class="col-sm-6">
-        	<?php 
-        	switch ($rand) {
-    			case "1":
-        			echo fuller($picked_color,$full_img_url,$full_img_alt);
-        			break;
-    			case "2":
-        			echo halfy('top','image',$picked_color,$halfy_img_url,$halfy_img_alt);
-        			echo halfy('bottom','color',$picked_color,$halfy_img_url,$halfy_img_alt);
-        			break;
-    			case "3":
-        			echo halfy('top','color',$picked_color,$halfy_img_url,$halfy_img_alt);
-        			echo halfy('bottom','image',$picked_color,$halfy_img_url,$halfy_img_alt);
-        			break;
-        		case "4":
-        			echo fuller($picked_color,$full_img_url,$full_img_alt);
-        			break;
-			} ?> 	
-        </div>
-        <div class="col-sm-6 right">
-			<?php 
-        	switch ($rand) {
-    			case "1":
-        			echo halfy('top','image',$picked_color,$halfy_img_url,$halfy_img_alt);
-        			echo halfy('bottom','color',$picked_color,$halfy_img_url,$halfy_img_alt);
-        			break;
-    			case "2":
-        			echo fuller($picked_color,$full_img_url,$full_img_alt);
-        			break;
-    			case "3":
-        			echo fuller($picked_color,$full_img_url,$full_img_alt); 
-        			break;
-        		case "4":
-        			echo halfy('top','color',$picked_color,$halfy_img_url,$halfy_img_alt);
-        			echo halfy('bottom','image',$picked_color,$halfy_img_url,$halfy_img_alt);
-        			break;
-			} ?>
-        </div>
-        <?php } else { ?>
-        	<div class="col-xs-12">
-        		<?php 
-        			if (count($grantee_images)==1) {
-        				echo fuller($picked_color,$full_img_url,$full_img_alt);
-        			}
-        			echo halfy('bottom','color',$picked_color,'',$halfy_img_alt); 
-        		?>
-        		
-        	</div>
-        
-        <?php }  ?>
+        if (!empty($grantee_images)) {
+			if ( count($grantee_images)>1 ) { ?>
+			<div class="col-sm-6">
+				<?php 
+				switch ($rand) {
+					case "1":
+						echo fuller($picked_color,$full_img_url,$full_img_alt);
+						break;
+					case "2":
+						echo halfy('top','image',$picked_color,$halfy_img_url,$halfy_img_alt);
+						echo halfy('bottom','color',$picked_color,$halfy_img_url,$halfy_img_alt);
+						break;
+					case "3":
+						echo halfy('top','color',$picked_color,$halfy_img_url,$halfy_img_alt);
+						echo halfy('bottom','image',$picked_color,$halfy_img_url,$halfy_img_alt);
+						break;
+					case "4":
+						echo fuller($picked_color,$full_img_url,$full_img_alt);
+						break;
+				} ?> 	
+			</div>
+			<div class="col-sm-6 right">
+				<?php 
+				switch ($rand) {
+					case "1":
+						echo halfy('top','image',$picked_color,$halfy_img_url,$halfy_img_alt);
+						echo halfy('bottom','color',$picked_color,$halfy_img_url,$halfy_img_alt);
+						break;
+					case "2":
+						echo fuller($picked_color,$full_img_url,$full_img_alt);
+						break;
+					case "3":
+						echo fuller($picked_color,$full_img_url,$full_img_alt); 
+						break;
+					case "4":
+						echo halfy('top','color',$picked_color,$halfy_img_url,$halfy_img_alt);
+						echo halfy('bottom','image',$picked_color,$halfy_img_url,$halfy_img_alt);
+						break;
+				} ?>
+			</div>
+			<?php } else { ?>
+				<div class="col-xs-12">
+					<?php 
+						if (count($grantee_images)==1) {
+							echo fuller($picked_color,$full_img_url,$full_img_alt);
+						}
+						echo halfy('bottom','color',$picked_color,'',$halfy_img_alt); 
+					?>
+					
+				</div>
+			
+			<?php }  ?>
+		<?php } ?>
     </div>
 </div>
 

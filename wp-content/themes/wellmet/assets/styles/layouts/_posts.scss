@@ -41,6 +41,7 @@ article header {
 	
 	.full, .halfy {
 		margin-bottom:15px;
+		background-position: center;
 		@include breakpoint(medium) {
 			margin-bottom:0;
 		}
