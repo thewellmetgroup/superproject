@@ -1050,6 +1050,11 @@ function acf_get_terms( $args ) {
 		)
 	);
 
+	// parameters changed in version 4.5
+	if ( acf_version_compare( 'wp', '<', '4.5' ) ) {
+		return get_terms( $args['taxonomy'], $args );
+	}
+
 	// return
 	return get_terms( $args );
 }

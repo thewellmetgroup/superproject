@@ -371,6 +371,11 @@ function acf_validate_block_type( $block ) {
 		)
 	);
 
+	// Restrict keywords to 3 max to avoid JS error in older versions.
+	if ( acf_version_compare( 'wp', '<', '5.2' ) ) {
+		$block['keywords'] = array_slice( $block['keywords'], 0, 3 );
+	}
+
 	// Generate name with prefix.
 	if ( $block['name'] ) {
 		$block['name'] = 'acf/' . acf_slugify( $block['name'] );
@@ -750,7 +755,11 @@ function acf_enqueue_block_assets() {
 	// Enqueue script.
 	$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
-	$blocks_js_path = acf_get_url( "assets/build/js/pro/acf-pro-blocks{$min}.js" );
+	if ( acf_version_compare( 'wp', '<', '5.6' ) ) {
+		$blocks_js_path = acf_get_url( "assets/build/js/pro/acf-pro-blocks-legacy{$min}.js" );
+	} else {
+		$blocks_js_path = acf_get_url( "assets/build/js/pro/acf-pro-blocks{$min}.js" );
+	}
 
 	wp_enqueue_script( 'acf-blocks', $blocks_js_path, array( 'acf-input', 'wp-blocks' ), ACF_VERSION, true );
 

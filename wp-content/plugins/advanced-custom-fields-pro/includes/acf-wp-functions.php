@@ -85,7 +85,7 @@ function acf_get_object_type( $object_type, $object_subtype = '' ) {
 			break;
 		case 'block':
 			$props['label'] = __( 'Blocks', 'acf' );
-			$props['icon']  = 'dashicons-block-default';
+			$props['icon']  = acf_version_compare( 'wp', '>=', '5.5' ) ? 'dashicons-block-default' : 'dashicons-layout';
 			break;
 		default:
 			return false;

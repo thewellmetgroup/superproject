@@ -6,17 +6,15 @@
  * @author        WP Engine
  *
  * @wordpress-plugin
- * Plugin Name:       Advanced Custom Fields PRO
- * Plugin URI:        https://www.advancedcustomfields.com
- * Description:       Customize WordPress with powerful, professional and intuitive fields.
- * Version:           6.2.1.1
- * Author:            WP Engine
- * Author URI:        https://wpengine.com/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=plugin_directory&utm_content=advanced_custom_fields
- * Update URI:        https://www.advancedcustomfields.com/pro
- * Text Domain:       acf
- * Domain Path:       /lang
- * Requires PHP:      7.0
- * Requires at least: 5.8
+ * Plugin Name:   Advanced Custom Fields PRO
+ * Plugin URI:    https://www.advancedcustomfields.com
+ * Description:   Customize WordPress with powerful, professional and intuitive fields.
+ * Version:       6.2.0
+ * Author:        WP Engine
+ * Author URI:    https://wpengine.com/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=plugin_directory&utm_content=advanced_custom_fields
+ * Update URI:    https://www.advancedcustomfields.com/pro
+ * Text Domain:   acf
+ * Domain Path:   /lang
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -36,7 +34,7 @@ if ( ! class_exists( 'ACF' ) ) {
 		 *
 		 * @var string
 		 */
-		public $version = '6.2.1.1';
+		public $version = '6.2.0';
 
 		/**
 		 * The plugin settings array.
