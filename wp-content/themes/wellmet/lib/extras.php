@@ -47,17 +47,17 @@ function logged_in_show_password_protected( $returned, $post ) {
 
 
 //REdirect on logout
-add_action('wp_logout',__NAMESPACE__ . '\\ps_redirect_after_logout');
+/*add_action('wp_logout',__NAMESPACE__ . '\\ps_redirect_after_logout');
 function ps_redirect_after_logout(){
          wp_redirect( '/login/' );
          exit();
-}
+}*/
 
 //Redirect on login
-function my_login_redirect( $redirect_to, $request, $user ) {
+/*function my_login_redirect( $redirect_to, $request, $user ) {
     $redirect_to =  '/member-resources/';
  
     return $redirect_to;
 }
  
-add_filter( 'login_redirect', __NAMESPACE__ . '\\my_login_redirect', 10, 3 );
+add_filter( 'login_redirect', __NAMESPACE__ . '\\my_login_redirect', 10, 3 );*/
