@@ -253,7 +253,7 @@ add_shortcode( 'wellmet_gallery', 'show_gallery' );
 
 
 //add Login shortcode
-function show_login( $atts ){
+/*function show_login( $atts ){
 	if (!is_user_logged_in()) {
 		if (isset($_GET['redirect'])) {
 			$whereto = $_GET['redirect'];
@@ -283,7 +283,7 @@ function show_login( $atts ){
 	return $html;
 }
 add_shortcode( 'login', 'show_login' );
-
+*/
 
 
 //customize login page
